@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>PID Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta http-equiv="refresh" content="10800" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      /* Swiss Premium Palette */
+      --bg-color: #050505;
+      --panel-bg: #111111;
+      --border-color: #262626;
+      
+      --accent-bus: #3B82F6; 
+      --accent-metro: #E11D2D; 
+      
+      --text-main: #FFFFFF;
+      --text-sec: #888888;
+      
+      --status-warn: #F59E0B;
+      --status-alert: #EF4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, sans-serif;
+      margin: 0;
+      padding: 32px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* --- HEADER --- */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .header-left { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 6px; 
+      justify-content: flex-end; 
+    }
+    
+    h1 {
+      margin: 0; font-size: 1.1rem; font-weight: 600; 
+      text-transform: uppercase; letter-spacing: 2px; 
+      color: var(--text-sec);
+      margin-bottom: 4px;
+    }
+    
+    /* Kontejner pro Datum + Počasí */
+    .date-weather-row {
+      display: flex;
+      align-items: center; 
+      gap: 28px; /* Větší mezera mezi datem a počasím */
+    }
+
+    /* DATUM */
+    .date-large {
+      font-size: 1.6rem; 
+      font-weight: 700; 
+      letter-spacing: -0.5px;
+      color: #eee;
+      line-height: 1;
+    }
+
+    /* POČASÍ */
+    .weather-wrap {
+      display: flex; 
+      align-items: center; 
+      gap: 14px;
+      padding-left: 28px;
+      border-left: 1px solid #333;
+      opacity: 0; transition: opacity 1s;
+    }
+    
+    /* IKONA */
+    .weather-icon { 
+        width: 48px; height: 48px; /* Zvětšeno */
+        display: flex; align-items: center; justify-content: center;
+        transform: translateY(-4px); /* POSUN NAHORU pro optické vyvážení */
+        overflow: visible; /* Zabrání ořezu */
+    }
+    .weather-icon svg { 
+        width: 100%; height: 100%; 
+        overflow: visible;
+    }
+    
+    .weather-text-col {
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center;
+        line-height: 1.1;
+    }
+
+    /* TEPLOTA - Stejná velikost jako datum */
+    .weather-temp { 
+        font-size: 1.6rem; 
+        font-weight: 700; 
+        color: #fff; 
+    }
+    
+    .weather-desc { 
+        font-size: 0.95rem; 
+        color: var(--text-sec); 
+        text-transform: lowercase; 
+        font-weight: 500;
+    }
+
+    .clock {
+      font-size: 3.5rem; font-weight: 800; 
+      font-variant-numeric: tabular-nums;
+      line-height: 0.8; letter-spacing: -2px;
+    }
+
+    /* Refresh Bar */
+    .refresh-bar {
+      position: absolute; bottom: -1px; left: 0; height: 2px;
+      background: #FFFFFF; 
+      width: 0%;
+      transition: width 1s linear;
+      opacity: 0.8;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.4); 
+    }
+
+    /* --- GRID --- */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px; 
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* --- PANEL --- */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: var(--panel-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(255,255,255,0.02);
+      z-index: 1;
+    }
+
+    .icon-box {
+      width: 24px; height: 24px;
+      display: grid; place-items: center;
+    }
+    .icon-box svg { width: 100%; height: 100%; fill: currentColor; }
+    
+    .bus .icon-box { color: var(--accent-bus); }
+    .metro .icon-box { color: var(--accent-metro); }
+
+    .panel-title {
+      font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+      color: var(--text-main);
+    }
+
+    .error-tag {
+      background: var(--status-alert); color: #fff;
+      font-size: 0.65rem; font-weight: 800; padding: 3px 8px;
+      border-radius: 4px; display: none; margin-left: auto;
+    }
+
+    /* --- LIST --- */
+    .list-container {
+      flex: 1;
+      overflow-y: hidden;
+      z-index: 1;
+      padding: 8px 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    
+    tr {
+      height: 64px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: background 0.2s;
+    }
+    tr:last-child { border-bottom: none; }
+
+    td { vertical-align: middle; padding: 0 24px; }
+
+    /* Line Number Badge */
+    .td-line { width: 80px; }
+    .badge {
+      display: flex; align-items: center; justify-content: center;
+      width: 52px; height: 34px;
+      font-size: 1.2rem; font-weight: 800;
+      color: #fff;
+      background: #222;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .bus .badge { background: var(--accent-bus); border-color: transparent; }
+    .metro .badge { background: var(--accent-metro); border-color: transparent; }
+
+    /* Destination */
+    .td-dest { 
+      font-size: 1.15rem; font-weight: 600; 
+      color: #e5e5e5;
+    }
+
+    /* Time */
+    .td-time { text-align: right; width: 140px; }
+    
+    .countdown-wrap {
+      display: flex; align-items: baseline; justify-content: flex-end; gap: 4px;
+    }
+    .val { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+    .unit { font-size: 0.85rem; font-weight: 500; color: var(--text-sec); }
+
+    /* Real time & Delay */
+    .real-time-wrap {
+      display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+      margin-top: 4px; 
+    }
+    
+    .sched-time { 
+        font-size: 1.1rem; 
+        font-weight: 600; 
+        color: #d4d4d4; 
+        font-family: 'Inter', monospace; 
+    }
+    
+    .delay-pill { 
+      font-size: 0.7rem; font-weight: 700; padding: 1px 4px; border-radius: 3px;
+    }
+    .delay-late { color: var(--status-warn); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .delay-early { color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    /* Status Colors */
+    .status-soon .val { color: var(--status-warn); }
+    .status-now .val { color: var(--status-alert); animation: pulse 2s infinite; }
+
+    @keyframes pulse { 
+        0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; }
+    }
+
+    .empty-state { text-align: center; padding: 40px; color: var(--text-sec); font-weight: 500; }
+
+    @media (max-width: 900px) {
+      body { padding: 16px; height: auto; overflow-y: auto; }
+      .grid { grid-template-columns: 1fr; gap: 24px; }
+      .clock { font-size: 2.2rem; }
+      header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .clock { align-self: flex-end; }
+      .date-weather-row { flex-wrap: wrap; height: auto; }
+      .weather-wrap { border-left: none; padding-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <h1 id="day-display">Načítám...</h1>
+      
+      <div class="date-weather-row">
+        <div id="date-display" class="date-large">...</div>
+        
+        <!-- WEATHER (Inline & Colorful) -->
+        <div class="weather-wrap" id="weather-box">
+          <!-- Ikona -->
+          <div id="weather-icon-container" class="weather-icon"></div>
+          
+          <!-- Textový sloupec -->
+          <div class="weather-text-col">
+             <span id="weather-temp" class="weather-temp">--°</span>
+             <span id="weather-desc" class="weather-desc"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="clock" class="clock">--:--:--</div>
+    <div id="refresh-bar" class="refresh-bar"></div>
+  </header>
+
+  <div class="grid">
+    <!-- BUS PANEL -->
+    <div class="panel bus">
+      <div class="panel-head">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg>
+        </div>
+        <div class="panel-title">Litochlebské nám.</div>
+        <div id="err-bus" class="error-tag">ERR</div>
+      </div>
+      <div class="list-container">
+        <table><tbody id="tbody-bus"></tbody></table>
+      </div>
+    </div>
+
+    <!-- METRO PANEL -->
+    <div class="panel metro">
+      <div class="panel-head">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24"><path d="M12 2c-4.42 0-8 .5-8 4v10c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg>
+        </div>
+        <div class="panel-title">Metro C – Opatov</div>
+        <div id="err-metro" class="error-tag">ERR</div>
+      </div>
+      <div class="list-container">
+        <table><tbody id="tbody-metro"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDE1NCwiaWF0IjoxNzYzMDQ0OTYyLCJleHAiOjExNzYzMDQ0OTYyLCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYWI3ZTJlMjYtYmVjZS00MGNhLTlkYTItZGY1MzEzMjNmOTRhIn0.5P9OjGHaDP4wJ4f6w05fQZR1UARUgxk2gBuwDjpVrWU";
+    const API_BASE = "https://api.golemio.cz/v2/pid/departureboards";
+    const REFRESH_INTERVAL = 15000;
+    
+    const WEATHER_API = "https://api.open-meteo.com/v1/forecast?latitude=50.03&longitude=14.51&current_weather=true";
+    
+    let lastFetchTime = 0;
+
+    const PANELS = [
+      {
+        id: 'bus',
+        url: `${API_BASE}?ids=U344Z4P&limit=20&minutesAfter=90&preferredTimezone=Europe/Prague`,
+        tbody: document.getElementById('tbody-bus'),
+        errEl: document.getElementById('err-bus'),
+        filter: (d) => ["177", "181", "182"].includes(d.route?.short_name || d.route?.number)
+      },
+      {
+        id: 'metro',
+        url: `${API_BASE}?names=Opatov&limit=50&minutesAfter=90&preferredTimezone=Europe/Prague`,
+        tbody: document.getElementById('tbody-metro'),
+        errEl: document.getElementById('err-metro'),
+        filter: (d) => (d.route?.short_name === "C" && d.trip?.headsign !== "Háje")
+      }
+    ];
+
+    // --- BAREVNÉ SVG IKONY PRO POČASÍ ---
+    const weatherIcons = {
+      // Jasno (Slunce - Žlutá)
+      0: `<circle cx="12" cy="12" r="5" fill="#FDB813" /><g stroke="#FDB813" stroke-width="2"><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></g>`,
+      
+      // Polojasno
+      1: `<circle cx="10" cy="10" r="4" fill="#FDB813" /><path d="M18,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.7,19,18,19z" fill="#B0C4DE" />`,
+      
+      // Oblačno
+      2: `<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#B0C4DE" opacity="0.8"/>`,
+      
+      // Zataženo
+      3: `<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#9CA3AF"/>`,
+      
+      // Déšť
+      61: `<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#9CA3AF"/><line x1="8" y1="18" x2="7" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="18" x2="11" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="18" x2="15" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>`,
+      
+      // Sníh
+      71: `<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#B0C4DE"/><circle cx="8" cy="21" r="1.5" fill="white"/><circle cx="12" cy="20" r="1.5" fill="white"/><circle cx="16" cy="21" r="1.5" fill="white"/>`,
+      
+      // Bouřka
+      95: `<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#6B7280"/><polygon points="11 17 9 21 11 21 10 24 14 20 12 20 13 17" fill="#FDB813"/>`
+    };
+
+    async function fetchWeather() {
+      try {
+        const res = await fetch(WEATHER_API);
+        if(!res.ok) return;
+        const data = await res.json();
+        const cw = data.current_weather;
+        
+        document.getElementById('weather-temp').innerText = `${Math.round(cw.temperature)}°`;
+        
+        const code = cw.weathercode;
+        let svgInner = weatherIcons[code] || weatherIcons[2]; 
+        
+        if(code >= 45 && code <= 48) svgInner = weatherIcons[2];
+        if(code >= 51 && code <= 67) svgInner = weatherIcons[61]; 
+        if(code >= 71 && code <= 77) svgInner = weatherIcons[71]; 
+        if(code >= 80 && code <= 82) svgInner = weatherIcons[61]; 
+        if(code >= 95) svgInner = weatherIcons[95]; 
+        
+        document.getElementById('weather-icon-container').innerHTML = 
+          `<svg viewBox="0 0 24 24">${svgInner}</svg>`;
+          
+        document.getElementById('weather-box').style.opacity = 1;
+      } catch(e) {
+        console.error("Weather error", e);
+      }
+    }
+
+    function formatHM(date) {
+      return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+    }
+
+    function getDelayHTML(scheduled, predicted) {
+      if (!scheduled || !predicted) return "";
+      const diffMs = predicted - scheduled;
+      const delayMin = Math.round(diffMs / 60000);
+      if (delayMin === 0) return "";
+      
+      const sign = delayMin > 0 ? "+" : "";
+      const cls = delayMin > 0 ? "delay-late" : "delay-early";
+      return `<span class="delay-pill ${cls}">${sign}${delayMin}</span>`;
+    }
+
+    async function fetchAndRender(panel) {
+      try {
+        const res = await fetch(panel.url, {
+          headers: { "x-access-token": API_TOKEN, "Content-Type": "application/json" }
+        });
+        if (!res.ok) throw new Error(res.status);
+        const json = await res.json();
+        
+        const data = (json.departures || [])
+          .filter(d => { try { return panel.filter(d); } catch { return false; } })
+          .map(d => {
+            const ts = d.departure_timestamp || {};
+            const sched = ts.scheduled ? new Date(ts.scheduled) : null;
+            const pred = ts.predicted ? new Date(ts.predicted) : null;
+            const eff = pred || sched;
+            return {
+              line: d.route?.short_name || "?",
+              dest: d.trip?.headsign || "?",
+              sched, pred, eff,
+              ts: eff ? eff.getTime() : 0 
+            };
+          })
+          .filter(d => d.ts > 0)
+          .sort((a, b) => a.ts - b.ts)
+          .slice(0, 7); 
+
+        if (data.length === 0) {
+          panel.tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Žádné spoje v dohledu</td></tr>`;
+        } else {
+          panel.tbody.innerHTML = data.map(item => {
+            const delayHtml = getDelayHTML(item.sched, item.pred);
+            const schedTime = item.sched ? formatHM(item.sched) : "";
+            
+            return `
+            <tr data-ts="${item.ts}">
+              <td class="td-line"><div class="badge">${item.line}</div></td>
+              <td class="td-dest">${item.dest}</td>
+              <td class="td-time">
+                <div class="countdown-wrap">
+                  <span class="val">--</span><span class="unit">min</span>
+                </div>
+                <div class="real-time-wrap">
+                  <span class="sched-time">${schedTime}</span>
+                  ${delayHtml}
+                </div>
+              </td>
+            </tr>`;
+          }).join('');
+        }
+        panel.errEl.style.display = 'none';
+        updateTimersInDom(panel.tbody);
+      } catch (e) {
+        console.error(panel.id, e);
+        panel.errEl.style.display = 'inline-block';
+      }
+    }
+
+    function updateTimersInDom(tbody) {
+      const now = Date.now();
+      tbody.querySelectorAll('tr[data-ts]').forEach(row => {
+        const targetTs = parseInt(row.getAttribute('data-ts'));
+        const diffSec = Math.floor((targetTs - now) / 1000);
+        const valEl = row.querySelector('.val');
+        const unitEl = row.querySelector('.unit');
+        const wrap = row.querySelector('.countdown-wrap');
+
+        if (diffSec < -30) {
+          row.style.display = 'none'; 
+        } else {
+          let val = "", unit = "";
+          wrap.classList.remove('status-soon', 'status-now');
+          
+          if (diffSec <= 0) {
+            val = "Teď"; unit = "";
+            wrap.classList.add('status-now');
+          } else {
+            const m = Math.floor(diffSec / 60);
+            const s = diffSec % 60;
+            if (m === 0) {
+              val = s; unit = "s";
+              wrap.classList.add('status-now');
+            } else {
+              val = m; unit = "min";
+              if (m < 5) wrap.classList.add('status-soon');
+            }
+          }
+          valEl.textContent = val;
+          unitEl.textContent = unit;
+        }
+      });
+    }
+
+    function updateProgressBar() {
+        const now = Date.now();
+        const elapsed = now - lastFetchTime;
+        const progress = Math.min((elapsed / REFRESH_INTERVAL) * 100, 100);
+        document.getElementById('refresh-bar').style.width = `${progress}%`;
+    }
+
+    function tick() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString('cs-CZ', {
+          hour: '2-digit', minute:'2-digit', second: '2-digit'
+      });
+      
+      const dayName = now.toLocaleDateString('cs-CZ', { weekday: 'long' });
+      const fullDate = now.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' });
+      
+      document.getElementById('day-display').textContent = dayName;
+      document.getElementById('date-display').textContent = fullDate;
+
+      updateTimersInDom(document.getElementById('tbody-bus'));
+      updateTimersInDom(document.getElementById('tbody-metro'));
+      
+      updateProgressBar();
+    }
+
+    async function dataLoop() { 
+        lastFetchTime = Date.now();
+        await Promise.all(PANELS.map(fetchAndRender)); 
+    }
+
+    dataLoop(); 
+    fetchWeather(); 
+    
+    setInterval(dataLoop, REFRESH_INTERVAL); 
+    setInterval(fetchWeather, 900000); 
+    setInterval(tick, 1000);      
+    tick();
+
+  </script>
+</body>
+</html>
