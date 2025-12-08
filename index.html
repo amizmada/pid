@@ -2,8 +2,15 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>PID Dashboard: Swiss Premium V7</title>
+  <title>PID Dashboard</title>
+  
+  <!-- === ZMĚNA: PŘIDÁNY META TAGY PRO FULLSCREEN (WEB APP) === -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#000000">
+  <!-- ========================================================= -->
+
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta http-equiv="refresh" content="10800">
 
@@ -393,152 +400,163 @@
       95: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#6B7280"/><polygon points="11 17 9 21 11 21 10 24 14 20 12 20 13 17" fill="#FDB813"/>'
     };
 
-    async function fetchWeather() {
-      try {
-        const res = await fetch(WEATHER_API);
-        if(!res.ok) return;
-        const data = await res.json();
-        const cw = data.current_weather;
-        
-        document.getElementById('weather-temp').innerText = Math.round(cw.temperature) + "°";
-        
-        const code = cw.weathercode;
-        let svgInner = weatherIcons[code] || weatherIcons[2]; 
-        
-        if(code >= 45 && code <= 48) svgInner = weatherIcons[2];
-        if(code >= 51 && code <= 67) svgInner = weatherIcons[61]; 
-        if(code >= 71 && code <= 77) svgInner = weatherIcons[71]; 
-        if(code >= 80 && code <= 82) svgInner = weatherIcons[61]; 
-        if(code >= 95) svgInner = weatherIcons[95]; 
-        
-        document.getElementById('weather-icon-container').innerHTML = 
-          '<svg viewBox="0 0 24 24">' + svgInner + '</svg>';
-          
-        document.getElementById('weather-box').style.opacity = 1;
-      } catch(e) {
-        console.error("Weather error", e);
-      }
+    function ajaxGet(url, token, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        if (token) {
+            xhr.setRequestHeader("x-access-token", token);
+            xhr.setRequestHeader("Content-Type", "application/json");
+        }
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        var json = JSON.parse(xhr.responseText);
+                        callback(null, json);
+                    } catch (e) {
+                        callback("JSON Chyba", null);
+                    }
+                } else {
+                    callback("HTTP " + xhr.status, null);
+                }
+            }
+        };
+        xhr.onerror = function() { callback("Síťová Chyba", null); };
+        xhr.send();
     }
 
     function formatHM(date) {
-        var h = String(date.getHours()).padStart(2, "0");
-        var m = String(date.getMinutes()).padStart(2, "0");
+        var h = ("0" + date.getHours()).slice(-2);
+        var m = ("0" + date.getMinutes()).slice(-2);
         return h + ":" + m;
     }
 
-    function getDelayHTML(scheduled, predicted) {
-      if (!scheduled || !predicted) return "";
-      const diffMs = predicted - scheduled;
-      const delayMin = Math.round(diffMs / 60000);
-      if (delayMin === 0) return "";
-      
-      const sign = delayMin > 0 ? "+" : "";
-      const cls = delayMin > 0 ? "delay-late" : "delay-early";
-      return '<span class="delay-pill ' + cls + '">' + sign + delayMin + '</span>';
+    function loadPanelData(panel) {
+        ajaxGet(panel.url, API_TOKEN, function(err, data) {
+            if (err) {
+                panel.errEl.style.display = 'inline';
+                panel.errEl.innerText = err;
+                return;
+            }
+            
+            var raw = data.departures || [];
+            var items = [];
+            
+            for (var i = 0; i < raw.length; i++) {
+                var d = raw[i];
+                try { if (!panel.filter(d)) continue; } catch(e) { continue; }
+
+                var ts = d.departure_timestamp || {};
+                var sched = ts.scheduled ? new Date(ts.scheduled) : null;
+                var pred = ts.predicted ? new Date(ts.predicted) : null;
+                var eff = pred || sched;
+                
+                if (!eff) continue;
+
+                var line = (d.route && d.route.short_name) ? d.route.short_name : "?";
+                var dest = (d.trip && d.trip.headsign) ? d.trip.headsign : "?";
+
+                var delayHtml = "";
+                if (sched && pred) {
+                    var diff = Math.round((pred - sched) / 60000);
+                    if (diff > 0) delayHtml = '<span class="delay-pill">+' + diff + ' min</span>';
+                }
+
+                items.push({
+                    line: line, dest: dest,
+                    schedTime: sched ? formatHM(sched) : "",
+                    ts: eff.getTime(),
+                    delayHtml: delayHtml
+                });
+            }
+
+            items.sort(function(a, b) { return a.ts - b.ts; });
+            items = items.slice(0, 7);
+
+            var html = "";
+            if (items.length === 0) {
+                html = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#666">Žádné spoje</td></tr>';
+            } else {
+                for (var j = 0; j < items.length; j++) {
+                    var item = items[j];
+                    html += '<tr data-ts="' + item.ts + '">' +
+                        '<td><div class="badge">' + item.line + '</div></td>' +
+                        '<td class="td-dest">' + item.dest + '</td>' +
+                        '<td class="td-time">' +
+                            '<div class="countdown-wrap"><span class="val">--</span><span class="unit">min</span></div>' +
+                            '<div class="real-time">' + item.schedTime + item.delayHtml + '</div>' +
+                        '</td>' +
+                        '</tr>';
+                }
+            }
+            panel.tbody.innerHTML = html;
+            panel.errEl.style.display = 'none';
+            updateTimersInDom(panel.tbody);
+        });
     }
 
-    async function fetchAndRender(panel) {
-      try {
-        const res = await fetch(panel.url, {
-          headers: { "x-access-token": API_TOKEN, "Content-Type": "application/json" }
+    function loadWeather() {
+        ajaxGet(WEATHER_API, null, function(err, data) {
+            if (err) return;
+            if (data.current_weather) {
+                var t = Math.round(data.current_weather.temperature);
+                document.getElementById('weather-temp').innerText = t + "°";
+                
+                var code = data.current_weather.weathercode;
+                var svg = W_ICONS[2]; 
+                if (W_ICONS[code]) svg = W_ICONS[code];
+                else {
+                    if (code <= 1) svg = W_ICONS[0];
+                    else if (code >= 51 && code <= 67) svg = W_ICONS[61];
+                    else if (code >= 71 && code <= 77) svg = W_ICONS[71];
+                    else if (code >= 95) svg = W_ICONS[95];
+                }
+                
+                document.getElementById('weather-icon').innerHTML = '<svg viewBox="0 0 24 24">' + svg + '</svg>';
+                
+                var desc = "zataženo";
+                if(code === 0) desc = "jasno";
+                if(code === 1) desc = "polojasno";
+                if(code > 50) desc = "srážky";
+                document.getElementById('weather-desc').innerText = desc;
+                document.getElementById('weather-box').style.opacity = 1;
+            }
         });
-        if (!res.ok) throw new Error(res.status);
-        const json = await res.json();
-        
-        const rawData = json.departures || [];
-        
-        const data = rawData
-          .filter(function(d) { try { return panel.filter(d); } catch(e) { return false; } })
-          .map(function(d) {
-            const ts = d.departure_timestamp || {};
-            const sched = ts.scheduled ? new Date(ts.scheduled) : null;
-            const pred = ts.predicted ? new Date(ts.predicted) : null;
-            const eff = pred || sched;
-            
-            var line = "?";
-            if (d.route) line = d.route.short_name || "?";
-            
-            var dest = "?";
-            if (d.trip) dest = d.trip.headsign || "?";
-
-            return {
-              line: line,
-              dest: dest,
-              sched: sched, pred: pred, eff: eff,
-              ts: eff ? eff.getTime() : 0 
-            };
-          })
-          .filter(function(d) { return d.ts > 0; })
-          .sort(function(a, b) { return a.ts - b.ts; })
-          .slice(0, 7); 
-
-        if (data.length === 0) {
-          panel.tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Žádné spoje v dohledu</td></tr>';
-        } else {
-          panel.tbody.innerHTML = data.map(function(item) {
-            const delayHtml = getDelayHTML(item.sched, item.pred);
-            const schedTime = item.sched ? formatHM(item.sched) : "";
-            
-            return '<tr data-ts="' + item.ts + '">' +
-              '<td class="td-line"><div class="badge">' + item.line + '</div></td>' +
-              '<td class="td-dest">' + item.dest + '</td>' +
-              '<td class="td-time">' +
-                '<div class="countdown-wrap">' +
-                  '<span class="val">--</span><span class="unit">min</span>' +
-                '</div>' +
-                '<div class="real-time-wrap">' +
-                  '<span class="sched-time">' + schedTime + '</span>' +
-                  delayHtml +
-                '</div>' +
-              '</td>' +
-            '</tr>';
-          }).join('');
-        }
-        panel.errEl.style.display = 'none';
-        updateTimersInDom(panel.tbody);
-      } catch (e) {
-        console.error(panel.id, e);
-        panel.errEl.style.display = 'inline-block';
-        document.getElementById('global-error-box').innerText += panel.id + ": " + e.message + "\n";
-      }
     }
 
     function updateTimersInDom(tbody) {
-      const now = Date.now();
-      const rows = tbody.querySelectorAll('tr[data-ts]');
-      
-      for (var i = 0; i < rows.length; i++) {
-        var row = rows[i];
-        const targetTs = parseInt(row.getAttribute('data-ts'));
-        const diffSec = Math.floor((targetTs - now) / 1000);
-        const valEl = row.querySelector('.val');
-        const unitEl = row.querySelector('.unit');
-        const wrap = row.querySelector('.countdown-wrap');
+        var now = new Date().getTime();
+        var rows = tbody.querySelectorAll('tr[data-ts]');
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var targetTs = parseInt(row.getAttribute('data-ts'));
+            var diffSec = Math.floor((targetTs - now) / 1000);
+            var valEl = row.querySelector('.val');
+            var unitEl = row.querySelector('.unit');
+            
+            valEl.style.color = "#ffffff";
 
-        if (diffSec < -30) {
-          row.style.display = 'none'; 
-        } else {
-          let val = "", unit = "";
-          wrap.classList.remove('status-soon', 'status-now');
-          
-          if (diffSec <= 0) {
-            val = "Teď"; unit = "";
-            wrap.classList.add('status-now');
-          } else {
-            const m = Math.floor(diffSec / 60);
-            const s = diffSec % 60;
-            if (m === 0) {
-              val = s; unit = "s";
-              wrap.classList.add('status-now');
+            if (diffSec < -30) {
+                row.style.display = 'none';
             } else {
-              val = m; unit = "min";
-              if (m < 5) wrap.classList.add('status-soon');
+                var text = "";
+                var unit = "";
+                if (diffSec <= 0) {
+                    text = "TEĎ"; valEl.style.color = "#E11D2D";
+                } else {
+                    var m = Math.floor(diffSec / 60);
+                    var s = diffSec % 60;
+                    if (m === 0) {
+                        text = s; unit = "s"; valEl.style.color = "#E11D2D";
+                    } else {
+                        text = m; unit = "min";
+                        if (m < 5) valEl.style.color = "#F59E0B";
+                    }
+                }
+                valEl.innerText = text;
+                unitEl.innerText = unit;
             }
-          }
-          valEl.textContent = val;
-          unitEl.textContent = unit;
         }
-      }
     }
 
     function updateProgressBar() {
@@ -566,18 +584,21 @@
       updateProgressBar();
     }
 
-    async function dataLoop() { 
+    function dataLoop() {
         lastFetchTime = Date.now();
-        await Promise.all(PANELS.map(fetchAndRender)); 
+        for (var i = 0; i < PANELS.length; i++) {
+            loadPanelData(PANELS[i]);
+        }
     }
 
-    dataLoop(); 
-    fetchWeather(); 
-    
-    setInterval(dataLoop, REFRESH_INTERVAL); 
-    setInterval(fetchWeather, 900000); 
-    setInterval(tick, 1000);      
+    // INIT
     tick();
+    dataLoop();
+    loadWeather();
+
+    setInterval(tick, 1000);
+    setInterval(dataLoop, 15000);
+    setInterval(loadWeather, 900000);
 
   </script>
 </body>
