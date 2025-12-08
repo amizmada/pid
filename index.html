@@ -18,24 +18,9 @@
   <meta http-equiv="refresh" content="10800">
 
   <style>
-    /* === ZÁKLADNÍ DESKTOP STYLY === */
+    /* === ZÁKLADNÍ STYLY (Stejné jako předtím) === */
     body { background-color: #050505; color: #FFFFFF; font-family: sans-serif; margin: 0; padding: 16px; height: 100vh; overflow: hidden; box-sizing: border-box; }
     
-    /* === BARVY === */
-    :root {
-      --bg-color: #050505;
-      --panel-bg: #111111;
-      --border-color: #262626;
-      --accent-bus: #3B82F6; 
-      --accent-metro: #E11D2D; 
-      --text-main: #FFFFFF;
-      --text-sec: #888888;
-      
-      /* NOVÁ ŽLUTÁ PRO ZPOŽDĚNÍ */
-      --status-warn: #FFCC00; 
-      --status-alert: #EF4444;
-    }
-
     header { display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; -webkit-align-items: flex-end; align-items: flex-end; border-bottom: 1px solid #262626; padding-bottom: 20px; margin-bottom: 20px; position: relative; }
     
     .header-left { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
@@ -91,18 +76,11 @@
 
     /* === STYLY ZPOŽDĚNÍ (ŽLUTÁ) === */
     .status-now .val { color: #E11D2D; }
-    .status-soon .val { color: var(--status-warn); }
+    .status-soon .val { color: #FFCC00; }
     
     .delay-pill { 
-        font-size: 0.75rem; 
-        font-weight: 800; 
-        color: #000; /* Černé písmo pro kontrast */
-        background-color: var(--status-warn); /* Žluté pozadí */
-        margin-left: 6px; 
-        padding: 2px 5px; 
-        border-radius: 4px;
-        display: inline-block;
-        vertical-align: middle;
+        font-size: 0.75rem; font-weight: 800; color: #000; background-color: #FFCC00;
+        margin-left: 6px; padding: 2px 5px; border-radius: 4px; display: inline-block; vertical-align: middle;
     }
 
     #error-console { 
@@ -110,65 +88,26 @@
         font-size: 14px; padding: 15px; display: none; z-index: 9999; font-family: monospace; white-space: pre-wrap;
     }
 
-    /* === MOBILNÍ ZOBRAZENÍ (Portrait - Telefon) === */
+    /* === MOBILNÍ ZOBRAZENÍ === */
     @media (max-width: 900px) {
         body { padding: 10px; overflow-y: auto; height: auto; }
-        
         header { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: flex-start; align-items: flex-start; }
         .clock { position: absolute; top: 0; right: 0; font-size: 1.8rem; margin-top: 0; }
-        
         .date-row { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: flex-start; align-items: flex-start; }
-        .date-large { font-size: 1.5rem; }
-        
         .weather-wrap { margin-left: 0; padding-left: 0; border-left: none; margin-top: 10px; height: auto; }
-        
         .grid { -webkit-flex-direction: column; flex-direction: column; height: auto; display: block; }
         .panel { margin: 0 0 20px 0; height: 380px; }
     }
 
-    /* === OPRAVA PRO TABLET NA ŠÍŘKU (Landscape) === */
+    /* === TABLET LANDSCAPE === */
     @media (max-width: 900px) and (orientation: landscape) {
-        body { 
-            overflow: hidden; 
-            padding: 12px;
-            height: 100vh;
-        }
-
-        header {
-            -webkit-flex-direction: row; flex-direction: row;
-            -webkit-align-items: flex-end; align-items: flex-end;
-            padding-bottom: 15px; margin-bottom: 15px;
-        }
-        
-        .clock {
-            position: relative; top: auto; right: auto; margin: 0;
-            font-size: 2.2rem;
-        }
-
-        .date-row {
-            -webkit-flex-direction: row; flex-direction: row;
-            -webkit-align-items: center; align-items: center;
-        }
-        .date-large { font-size: 1.5rem; margin-top: 0; }
-
-        .weather-wrap {
-            margin-left: 15px; padding-left: 15px; 
-            border-left: 1px solid #333; margin-top: 0;
-            height: 30px;
-        }
-
-        .grid {
-            display: -webkit-flex; display: flex;
-            -webkit-flex-direction: row; flex-direction: row;
-            height: calc(100% - 100px); 
-        }
-
-        .panel {
-            -webkit-flex: 1; flex: 1;
-            margin: 0 8px; 
-            height: 100%;
-        }
-        
+        body { overflow: hidden; padding: 12px; height: 100vh; }
+        header { -webkit-flex-direction: row; flex-direction: row; -webkit-align-items: flex-end; align-items: flex-end; padding-bottom: 15px; margin-bottom: 15px; }
+        .clock { position: relative; top: auto; right: auto; margin: 0; font-size: 2.2rem; }
+        .date-row { -webkit-flex-direction: row; flex-direction: row; -webkit-align-items: center; align-items: center; }
+        .weather-wrap { margin-left: 15px; padding-left: 15px; border-left: 1px solid #333; margin-top: 0; height: 30px; }
+        .grid { display: -webkit-flex; display: flex; -webkit-flex-direction: row; flex-direction: row; height: calc(100% - 100px); }
+        .panel { -webkit-flex: 1; flex: 1; margin: 0 8px; height: 100%; }
         .badge { width: 42px; font-size: 1rem; }
         .td-dest { font-size: 1rem; }
         .val { font-size: 1.3rem; }
@@ -177,6 +116,7 @@
 </head>
 <body>
 
+  <!-- Error Console pro debug -->
   <div id="error-console"></div>
 
   <header>
@@ -223,8 +163,9 @@
   </div>
 
   <script>
-    // --- JS LOGIKA (ES6 kompatibilní, protože Chrome je aktualizovaný) ---
+    // --- JS LOGIKA PŘEPSANÁ DO ES5 (STARÝ JS) PRO KOMPATIBILITU ---
 
+    // Error Handler
     window.onerror = function(msg, url, line) {
        var el = document.getElementById('error-console');
        if(el) {
@@ -234,50 +175,72 @@
        return false;
     };
 
-    const API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDE1NCwiaWF0IjoxNzYzMDQ0OTYyLCJleHAiOjExNzYzMDQ0OTYyLCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYWI3ZTJlMjYtYmVjZS00MGNhLTlkYTItZGY1MzEzMjNmOTRhIn0.5P9OjGHaDP4wJ4f6w05fQZR1UARUgxk2gBuwDjpVrWU";
-    const API_BASE = "https://api.golemio.cz/v2/pid/departureboards";
-    const REFRESH_INTERVAL = 15000;
+    var API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDE1NCwiaWF0IjoxNzYzMDQ0OTYyLCJleHAiOjExNzYzMDQ0OTYyLCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYWI3ZTJlMjYtYmVjZS00MGNhLTlkYTItZGY1MzEzMjNmOTRhIn0.5P9OjGHaDP4wJ4f6w05fQZR1UARUgxk2gBuwDjpVrWU";
+    var API_BASE = "https://api.golemio.cz/v2/pid/departureboards";
+    var WEATHER_API = "https://api.open-meteo.com/v1/forecast?latitude=50.03&longitude=14.51&current_weather=true";
+    var REFRESH_INTERVAL = 15000;
     
-    const WEATHER_API = "https://api.open-meteo.com/v1/forecast?latitude=50.03&longitude=14.51&current_weather=true";
-    
-    let lastFetchTime = 0;
+    var lastFetchTime = 0;
 
-    const PANELS = [
+    var PANELS = [
       {
         id: 'bus',
-        url: `${API_BASE}?ids=U344Z4P&limit=20&minutesAfter=90&preferredTimezone=Europe/Prague`,
+        url: API_BASE + "?ids=U344Z4P&limit=20&minutesAfter=90&preferredTimezone=Europe/Prague",
         tbody: document.getElementById('tbody-bus'),
         errEl: document.getElementById('err-bus'),
         filter: function(d) { 
-            var r = d.route; 
-            if (!r) return false;
-            var num = r.short_name || r.number;
+            if (!d.route) return false;
+            var num = d.route.short_name || d.route.number;
             return ["177", "181", "182"].indexOf(num) !== -1;
         }
       },
       {
         id: 'metro',
-        url: `${API_BASE}?names=Opatov&limit=50&minutesAfter=90&preferredTimezone=Europe/Prague`,
+        url: API_BASE + "?names=Opatov&limit=50&minutesAfter=90&preferredTimezone=Europe/Prague",
         tbody: document.getElementById('tbody-metro'),
         errEl: document.getElementById('err-metro'),
         filter: function(d) {
-            var r = d.route; 
-            var t = d.trip;
-            if (!r || !t) return false;
-            return r.short_name === "C" && t.headsign !== "Háje";
+            if (!d.route || !d.trip) return false;
+            return d.route.short_name === "C" && d.trip.headsign !== "Háje";
         }
       }
     ];
 
-    const weatherIcons = {
-      0: '<circle cx="12" cy="12" r="5" fill="#FDB813" /><g stroke="#FDB813" stroke-width="2"><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></g>',
-      1: '<circle cx="10" cy="10" r="4" fill="#FDB813" /><path d="M18,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.7,19,18,19z" fill="#B0C4DE" />',
-      2: '<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#B0C4DE" opacity="0.8"/>',
-      3: '<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#9CA3AF"/>',
-      61: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#9CA3AF"/><line x1="8" y1="18" x2="7" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="18" x2="11" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="18" x2="15" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>',
-      71: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#B0C4DE"/><circle cx="8" cy="21" r="1.5" fill="white"/><circle cx="12" cy="20" r="1.5" fill="white"/><circle cx="16" cy="21" r="1.5" fill="white"/>',
-      95: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#6B7280"/><polygon points="11 17 9 21 11 21 10 24 14 20 12 20 13 17" fill="#FDB813"/>'
+    var W_ICONS = {
+        0: '<circle cx="12" cy="12" r="5" fill="#FDB813" /><g stroke="#FDB813" stroke-width="2"><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></g>',
+        1: '<circle cx="10" cy="10" r="4" fill="#FDB813" /><path d="M18,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.7,19,18,19z" fill="#B0C4DE" />',
+        2: '<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#B0C4DE" opacity="0.8"/>',
+        3: '<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#9CA3AF"/>',
+        61: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#9CA3AF"/><line x1="8" y1="18" x2="7" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="18" x2="11" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="18" x2="15" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>',
+        71: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#B0C4DE"/><circle cx="8" cy="21" r="1.5" fill="white"/><circle cx="12" cy="20" r="1.5" fill="white"/><circle cx="16" cy="21" r="1.5" fill="white"/>',
+        95: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#6B7280"/><polygon points="11 17 9 21 11 21 10 24 14 20 12 20 13 17" fill="#FDB813"/>'
     };
+
+    // AJAX GET (Místo fetch)
+    function ajaxGet(url, token, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        if (token) {
+            xhr.setRequestHeader("x-access-token", token);
+            xhr.setRequestHeader("Content-Type", "application/json");
+        }
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        var json = JSON.parse(xhr.responseText);
+                        callback(null, json);
+                    } catch (e) {
+                        callback("JSON Chyba", null);
+                    }
+                } else {
+                    callback("HTTP " + xhr.status, null);
+                }
+            }
+        };
+        xhr.onerror = function() { callback("Síťová Chyba", null); };
+        xhr.send();
+    }
 
     function formatHM(date) {
         var h = ("0" + date.getHours()).slice(-2);
@@ -287,78 +250,83 @@
 
     function getDelayHTML(scheduled, predicted) {
       if (!scheduled || !predicted) return "";
-      const diffMs = predicted - scheduled;
-      const delayMin = Math.round(diffMs / 60000);
+      var diffMs = predicted - scheduled;
+      var delayMin = Math.round(diffMs / 60000);
       if (delayMin === 0) return "";
       
-      const sign = delayMin > 0 ? "+" : "";
-      const cls = delayMin > 0 ? "delay-late" : "delay-early";
-      return `<span class="delay-pill ${cls}">${sign}${delayMin} min</span>`;
+      var sign = delayMin > 0 ? "+" : "";
+      var cls = delayMin > 0 ? "delay-late" : "delay-early";
+      // Použita nová třída .delay-pill
+      return '<span class="delay-pill">' + sign + delayMin + ' min</span>';
     }
 
-    async function fetchAndRender(panel) {
-      try {
-        const res = await fetch(panel.url, {
-          headers: { "x-access-token": API_TOKEN, "Content-Type": "application/json" }
+    function loadPanelData(panel) {
+        ajaxGet(panel.url, API_TOKEN, function(err, data) {
+            if (err) {
+                panel.errEl.style.display = 'inline';
+                panel.errEl.innerText = err;
+                return;
+            }
+            
+            var raw = data.departures || [];
+            var items = [];
+            
+            for (var i = 0; i < raw.length; i++) {
+                var d = raw[i];
+                try { if (!panel.filter(d)) continue; } catch(e) { continue; }
+
+                var ts = d.departure_timestamp || {};
+                var sched = ts.scheduled ? new Date(ts.scheduled) : null;
+                var pred = ts.predicted ? new Date(ts.predicted) : null;
+                var eff = pred || sched;
+                
+                if (!eff) continue;
+
+                var line = (d.route && d.route.short_name) ? d.route.short_name : "?";
+                var dest = (d.trip && d.trip.headsign) ? d.trip.headsign : "?";
+
+                var delayHtml = "";
+                if (sched && pred) {
+                    var diff = Math.round((pred - sched) / 60000);
+                    if (diff > 0) delayHtml = '<span class="delay-pill">+' + diff + ' min</span>';
+                }
+
+                items.push({
+                    line: line, dest: dest,
+                    schedTime: sched ? formatHM(sched) : "",
+                    ts: eff.getTime(),
+                    delayHtml: delayHtml
+                });
+            }
+
+            items.sort(function(a, b) { return a.ts - b.ts; });
+            items = items.slice(0, 7);
+
+            var html = "";
+            if (items.length === 0) {
+                html = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#666">Žádné spoje</td></tr>';
+            } else {
+                for (var j = 0; j < items.length; j++) {
+                    var item = items[j];
+                    html += '<tr data-ts="' + item.ts + '">' +
+                        '<td><div class="badge">' + item.line + '</div></td>' +
+                        '<td class="td-dest">' + item.dest + '</td>' +
+                        '<td class="td-time">' +
+                            '<div class="countdown-wrap"><span class="val">--</span><span class="unit">min</span></div>' +
+                            '<div class="real-time">' + '<span class="sched-time">' + item.schedTime + '</span>' + item.delayHtml + '</div>' +
+                        '</td>' +
+                        '</tr>';
+                }
+            }
+            panel.tbody.innerHTML = html;
+            panel.errEl.style.display = 'none';
+            updateTimersInDom(panel.tbody);
         });
-        if (!res.ok) throw new Error(res.status);
-        const json = await res.json();
-        
-        const rawData = json.departures || [];
-        
-        const data = rawData
-          .filter(function(d) { try { return panel.filter(d); } catch(e) { return false; } })
-          .map(function(d) {
-            const ts = d.departure_timestamp || {};
-            const sched = ts.scheduled ? new Date(ts.scheduled) : null;
-            const pred = ts.predicted ? new Date(ts.predicted) : null;
-            const eff = pred || sched;
-            
-            var line = "?";
-            if (d.route) line = d.route.short_name || "?";
-            
-            var dest = "?";
-            if (d.trip) dest = d.trip.headsign || "?";
-
-            return {
-              line: line, dest: dest,
-              sched: sched, pred: pred, eff: eff,
-              ts: eff ? eff.getTime() : 0 
-            };
-          })
-          .filter(function(d) { return d.ts > 0; })
-          .sort(function(a, b) { return a.ts - b.ts; })
-          .slice(0, 7); 
-
-        if (data.length === 0) {
-          panel.tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Žádné spoje v dohledu</td></tr>';
-        } else {
-          panel.tbody.innerHTML = data.map(function(item) {
-            const delayHtml = getDelayHTML(item.sched, item.pred);
-            const schedTime = item.sched ? formatHM(item.sched) : "";
-            
-            return '<tr data-ts="' + item.ts + '">' +
-              '<td class="td-line"><div class="badge">' + item.line + '</div></td>' +
-              '<td class="td-dest">' + item.dest + '</td>' +
-              '<td class="td-time">' +
-                '<div class="countdown-wrap"><span class="val">--</span><span class="unit">min</span></div>' +
-                '<div class="real-time">' + '<span class="sched-time">' + schedTime + '</span>' + delayHtml + '</div>' +
-              '</td>' +
-            '</tr>';
-          }).join('');
-        }
-        panel.errEl.style.display = 'none';
-        updateTimersInDom(panel.tbody);
-      } catch (e) {
-        console.error(panel.id, e);
-        panel.errEl.style.display = 'inline-block';
-      }
     }
 
     function loadWeather() {
-        fetch(WEATHER_API)
-        .then(res => res.json())
-        .then(data => {
+        ajaxGet(WEATHER_API, null, function(err, data) {
+            if (err) return;
             if (data.current_weather) {
                 var t = Math.round(data.current_weather.temperature);
                 document.getElementById('weather-temp').innerText = t + "°";
@@ -382,8 +350,7 @@
                 document.getElementById('weather-desc').innerText = desc;
                 document.getElementById('weather-box').style.opacity = 1;
             }
-        })
-        .catch(err => console.error(err));
+        });
     }
 
     function updateTimersInDom(tbody) {
@@ -396,6 +363,7 @@
             var valEl = row.querySelector('.val');
             var unitEl = row.querySelector('.unit');
             
+            // Reset colors (manually in ES5)
             valEl.style.color = "#ffffff";
 
             if (diffSec < -30) {
@@ -412,7 +380,7 @@
                         text = s; unit = "s"; valEl.style.color = "#E11D2D";
                     } else {
                         text = m; unit = "min";
-                        if (m < 5) valEl.style.color = "#F59E0B";
+                        if (m < 5) valEl.style.color = "#FFCC00"; // YELLOW
                     }
                 }
                 valEl.innerText = text;
@@ -422,23 +390,25 @@
     }
 
     function updateProgressBar() {
-        const now = Date.now();
-        const elapsed = now - lastFetchTime;
-        const progress = Math.min((elapsed / REFRESH_INTERVAL) * 100, 100);
+        var now = Date.now();
+        var elapsed = now - lastFetchTime;
+        var progress = Math.min((elapsed / REFRESH_INTERVAL) * 100, 100);
         document.getElementById('refresh-bar').style.width = progress + '%';
     }
 
     function tick() {
-      const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString('cs-CZ', {
-          hour: '2-digit', minute:'2-digit', second: '2-digit'
-      });
+      var now = new Date();
+      var h = ("0" + now.getHours()).slice(-2);
+      var m = ("0" + now.getMinutes()).slice(-2);
+      var s = ("0" + now.getSeconds()).slice(-2);
+      document.getElementById('clock').innerText = h + ":" + m + ":" + s;
       
-      const dayName = now.toLocaleDateString('cs-CZ', { weekday: 'long' });
-      const fullDate = now.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' });
+      var days = ["Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota"];
+      var dayName = days[now.getDay()];
+      var dateStr = now.getDate() + ". " + (now.getMonth() + 1) + ". " + now.getFullYear();
       
-      document.getElementById('day-display').textContent = dayName;
-      document.getElementById('date-display').textContent = fullDate;
+      document.getElementById('day-display').innerText = dayName;
+      document.getElementById('date-display').innerText = dateStr;
 
       updateTimersInDom(document.getElementById('tbody-bus'));
       updateTimersInDom(document.getElementById('tbody-metro'));
@@ -446,9 +416,11 @@
       updateProgressBar();
     }
 
-    async function dataLoop() { 
+    function dataLoop() {
         lastFetchTime = Date.now();
-        await Promise.all(PANELS.map(fetchAndRender)); 
+        for (var i = 0; i < PANELS.length; i++) {
+            loadPanelData(PANELS[i]);
+        }
     }
 
     // INIT
