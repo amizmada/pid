@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>PID Dashboard: Swiss Premium V6 (Legacy)</title>
+  <title>PID Dashboard: Swiss Premium V7</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta http-equiv="refresh" content="10800">
@@ -51,7 +51,7 @@
         display: none; white-space: pre-wrap;
     }
 
-    /* --- HEADER --- */
+    /* --- HEADER (DESKTOP DEFAULT) --- */
     header {
       display: flex;
       justify-content: space-between;
@@ -67,6 +67,7 @@
       flex-direction: column; 
       gap: 6px; 
       justify-content: flex-end; 
+      flex: 1; /* Aby zabral místo vlevo */
     }
     
     h1 {
@@ -76,6 +77,7 @@
       margin-bottom: 4px;
     }
     
+    /* Kontejner pro Datum + Počasí */
     .date-weather-row {
       display: flex;
       align-items: center; 
@@ -88,6 +90,7 @@
       letter-spacing: -0.5px;
       color: #eee;
       line-height: 1;
+      white-space: nowrap; /* Zabrání zalamování data */
     }
 
     .weather-wrap {
@@ -105,43 +108,27 @@
         transform: translateY(-4px); 
         overflow: visible; 
     }
-    .weather-icon svg { 
-        width: 100%; height: 100%; 
-        overflow: visible;
-    }
+    .weather-icon svg { width: 100%; height: 100%; overflow: visible; }
     
     .weather-text-col {
-        display: flex; 
-        flex-direction: column; 
-        justify-content: center;
-        line-height: 1.1;
+        display: flex; flex-direction: column; 
+        justify-content: center; line-height: 1.1;
     }
 
-    .weather-temp { 
-        font-size: 1.6rem; 
-        font-weight: 700; 
-        color: #fff; 
-    }
-    
-    .weather-desc { 
-        font-size: 0.95rem; 
-        color: var(--text-sec); 
-        text-transform: lowercase; 
-        font-weight: 500;
-    }
+    .weather-temp { font-size: 1.6rem; font-weight: 700; color: #fff; }
+    .weather-desc { font-size: 0.95rem; color: var(--text-sec); text-transform: lowercase; font-weight: 500; white-space: nowrap;}
 
     .clock {
       font-size: 3.5rem; font-weight: 800; 
       font-variant-numeric: tabular-nums;
       line-height: 0.8; letter-spacing: -2px;
+      margin-left: 20px; /* Odstup od levé části */
     }
 
     .refresh-bar {
       position: absolute; bottom: -1px; left: 0; height: 2px;
-      background: #FFFFFF; 
-      width: 0%;
-      transition: width 1s linear;
-      opacity: 0.8;
+      background: #FFFFFF; width: 0%;
+      transition: width 1s linear; opacity: 0.8;
       box-shadow: 0 0 8px rgba(255, 255, 255, 0.4); 
     }
 
@@ -155,28 +142,20 @@
     }
 
     .panel {
-      display: flex;
-      flex-direction: column;
-      position: relative;
+      display: flex; flex-direction: column; position: relative;
       background: var(--panel-bg);
-      border-radius: 16px;
-      border: 1px solid var(--border-color);
+      border-radius: 16px; border: 1px solid var(--border-color);
       overflow: hidden;
     }
 
     .panel-head {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--border-color);
-      background: rgba(255,255,255,0.02);
-      z-index: 1;
+      display: flex; align-items: center; gap: 12px;
+      padding: 20px 24px; border-bottom: 1px solid var(--border-color);
+      background: rgba(255,255,255,0.02); z-index: 1;
     }
 
     .icon-box {
-      width: 24px; height: 24px;
-      display: grid; place-items: center;
+      width: 24px; height: 24px; display: grid; place-items: center;
     }
     .icon-box svg { width: 100%; height: 100%; fill: currentColor; }
     
@@ -195,17 +174,13 @@
     }
 
     .list-container {
-      flex: 1;
-      overflow-y: hidden;
-      z-index: 1;
-      padding: 8px 0;
+      flex: 1; overflow-y: hidden; z-index: 1; padding: 8px 0;
     }
 
     table { width: 100%; border-collapse: collapse; }
     
     tr {
-      height: 64px;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
+      height: 64px; border-bottom: 1px solid rgba(255,255,255,0.03);
       transition: background 0.2s;
     }
     tr:last-child { border-bottom: none; }
@@ -217,24 +192,16 @@
       display: flex; align-items: center; justify-content: center;
       width: 52px; height: 34px;
       font-size: 1.2rem; font-weight: 800;
-      color: #fff;
-      background: #222;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; background: #222;
+      border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);
     }
     .bus .badge { background: var(--accent-bus); border-color: transparent; }
     .metro .badge { background: var(--accent-metro); border-color: transparent; }
 
-    .td-dest { 
-      font-size: 1.15rem; font-weight: 600; 
-      color: #e5e5e5;
-    }
-
+    .td-dest { font-size: 1.15rem; font-weight: 600; color: #e5e5e5; }
     .td-time { text-align: right; width: 140px; }
     
-    .countdown-wrap {
-      display: flex; align-items: baseline; justify-content: flex-end; gap: 4px;
-    }
+    .countdown-wrap { display: flex; align-items: baseline; justify-content: flex-end; gap: 4px; }
     .val { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
     .unit { font-size: 0.85rem; font-weight: 500; color: var(--text-sec); }
 
@@ -242,37 +209,77 @@
       display: flex; justify-content: flex-end; align-items: center; gap: 8px;
       margin-top: 4px; 
     }
-    
-    .sched-time { 
-        font-size: 1.1rem; 
-        font-weight: 600; 
-        color: #d4d4d4; 
-        font-family: 'Inter', monospace; 
-    }
-    
-    .delay-pill { 
-      font-size: 0.7rem; font-weight: 700; padding: 1px 4px; border-radius: 3px;
-    }
+    .sched-time { font-size: 1.1rem; font-weight: 600; color: #d4d4d4; font-family: 'Inter', monospace; }
+    .delay-pill { font-size: 0.7rem; font-weight: 700; padding: 1px 4px; border-radius: 3px; }
     .delay-late { color: var(--status-warn); border: 1px solid rgba(245, 158, 11, 0.3); }
     .delay-early { color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
 
     .status-soon .val { color: var(--status-warn); }
     .status-now .val { color: var(--status-alert); animation: pulse 2s infinite; }
 
-    @keyframes pulse { 
-        0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; }
-    }
-
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     .empty-state { text-align: center; padding: 40px; color: var(--text-sec); font-weight: 500; }
 
+    /* === MOBILE OPTIMIZATION === */
     @media (max-width: 900px) {
-      body { padding: 16px; height: auto; overflow-y: auto; }
+      body { 
+          padding: 16px; 
+          height: auto; 
+          overflow-y: auto; 
+          overflow-x: hidden; /* Zabrání posunu do stran */
+      }
+      
+      /* Přestavba Headeru */
+      header { 
+          flex-wrap: wrap; /* Povolí zalamování */
+          gap: 16px;
+          margin-bottom: 20px;
+          align-items: center;
+      }
+      
+      /* Den v týdnu nahoře */
+      .header-left h1 {
+          font-size: 1rem;
+          width: 100%; /* Den zabere celý řádek nahoře */
+      }
+
+      /* Datum a Počasí se poskládají pod sebe */
+      .date-weather-row { 
+          flex-direction: column; 
+          align-items: flex-start;
+          gap: 8px;
+      }
+      
+      .date-large {
+          font-size: 1.8rem; /* Trochu větší na mobilu */
+      }
+
+      /* Počasí - odstraníme čáru a posuneme doleva */
+      .weather-wrap {
+          border-left: none;
+          padding-left: 0;
+      }
+
+      /* Hodiny - přesuneme je vizuálně nahoru napravo absolutně */
+      .clock { 
+          position: absolute;
+          top: 0;
+          right: 0;
+          font-size: 2rem;
+          margin-left: 0;
+          line-height: 1.2;
+      }
+
+      /* Grid se změní na jeden sloupec */
       .grid { grid-template-columns: 1fr; gap: 24px; }
-      .clock { font-size: 2.2rem; }
-      header { flex-direction: column; align-items: flex-start; gap: 16px; }
-      .clock { align-self: flex-end; }
-      .date-weather-row { flex-wrap: wrap; height: auto; }
-      .weather-wrap { border-left: none; padding-left: 0; }
+      
+      /* Úprava tabulky na mobilu */
+      .td-line { width: 60px; }
+      td { padding: 0 12px; }
+      .td-dest { font-size: 1rem; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+      .td-time { width: 100px; }
+      .val { font-size: 1.3rem; }
+      .sched-time { font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -334,7 +341,6 @@
   </div>
 
   <script>
-    // --- GLOBAL ERROR HANDLER (pro staré tablety) ---
     window.onerror = function(msg, url, line) {
         var box = document.getElementById('global-error-box');
         box.style.display = 'block';
@@ -350,7 +356,6 @@
     
     let lastFetchTime = 0;
 
-    // ODSTRANĚNY ŠIPKOVÉ FUNKCE U FILTRŮ PRO KOMPATIBILITU
     const PANELS = [
       {
         id: 'bus',
@@ -358,7 +363,6 @@
         tbody: document.getElementById('tbody-bus'),
         errEl: document.getElementById('err-bus'),
         filter: function(d) { 
-            // Bezpečný přístup bez optional chaining (?.)
             var r = d.route; 
             if (!r) return false;
             var num = r.short_name || r.number;
@@ -371,7 +375,6 @@
         tbody: document.getElementById('tbody-metro'),
         errEl: document.getElementById('err-metro'),
         filter: function(d) {
-            // Bezpečný přístup bez optional chaining (?.)
             var r = d.route; 
             var t = d.trip;
             if (!r || !t) return false;
@@ -444,7 +447,6 @@
         
         const rawData = json.departures || [];
         
-        // BEZPEČNÁ TRANSFORMACE DAT (žádné ?.)
         const data = rawData
           .filter(function(d) { try { return panel.filter(d); } catch(e) { return false; } })
           .map(function(d) {
@@ -453,7 +455,6 @@
             const pred = ts.predicted ? new Date(ts.predicted) : null;
             const eff = pred || sched;
             
-            // Fallbacky pro staré prohlížeče
             var line = "?";
             if (d.route) line = d.route.short_name || "?";
             
@@ -498,7 +499,6 @@
       } catch (e) {
         console.error(panel.id, e);
         panel.errEl.style.display = 'inline-block';
-        // Debug info na obrazovku pro starý tablet
         document.getElementById('global-error-box').innerText += panel.id + ": " + e.message + "\n";
       }
     }
@@ -507,7 +507,6 @@
       const now = Date.now();
       const rows = tbody.querySelectorAll('tr[data-ts]');
       
-      // Pro kompatibilitu používáme klasický for cyklus nebo Array.from
       for (var i = 0; i < rows.length; i++) {
         var row = rows[i];
         const targetTs = parseInt(row.getAttribute('data-ts'));
