@@ -2,9 +2,10 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>PID Dashboard</title>
+  <title>PID Dashboard: Swiss Premium V6 (Legacy)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta http-equiv="refresh" content="10800" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta http-equiv="refresh" content="10800">
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -42,6 +43,14 @@
       user-select: none;
     }
 
+    /* DEBUG ERROR BOX */
+    #global-error-box {
+        position: fixed; top: 0; left: 0; right: 0; 
+        background: #990000; color: white; padding: 20px; 
+        z-index: 9999; font-family: monospace; font-size: 14px;
+        display: none; white-space: pre-wrap;
+    }
+
     /* --- HEADER --- */
     header {
       display: flex;
@@ -67,14 +76,12 @@
       margin-bottom: 4px;
     }
     
-    /* Kontejner pro Datum + Počasí */
     .date-weather-row {
       display: flex;
       align-items: center; 
-      gap: 28px; /* Větší mezera mezi datem a počasím */
+      gap: 28px;
     }
 
-    /* DATUM */
     .date-large {
       font-size: 1.6rem; 
       font-weight: 700; 
@@ -83,7 +90,6 @@
       line-height: 1;
     }
 
-    /* POČASÍ */
     .weather-wrap {
       display: flex; 
       align-items: center; 
@@ -93,12 +99,11 @@
       opacity: 0; transition: opacity 1s;
     }
     
-    /* IKONA */
     .weather-icon { 
-        width: 48px; height: 48px; /* Zvětšeno */
+        width: 48px; height: 48px; 
         display: flex; align-items: center; justify-content: center;
-        transform: translateY(-4px); /* POSUN NAHORU pro optické vyvážení */
-        overflow: visible; /* Zabrání ořezu */
+        transform: translateY(-4px); 
+        overflow: visible; 
     }
     .weather-icon svg { 
         width: 100%; height: 100%; 
@@ -112,7 +117,6 @@
         line-height: 1.1;
     }
 
-    /* TEPLOTA - Stejná velikost jako datum */
     .weather-temp { 
         font-size: 1.6rem; 
         font-weight: 700; 
@@ -132,7 +136,6 @@
       line-height: 0.8; letter-spacing: -2px;
     }
 
-    /* Refresh Bar */
     .refresh-bar {
       position: absolute; bottom: -1px; left: 0; height: 2px;
       background: #FFFFFF; 
@@ -151,7 +154,6 @@
       min-height: 0;
     }
 
-    /* --- PANEL --- */
     .panel {
       display: flex;
       flex-direction: column;
@@ -192,7 +194,6 @@
       border-radius: 4px; display: none; margin-left: auto;
     }
 
-    /* --- LIST --- */
     .list-container {
       flex: 1;
       overflow-y: hidden;
@@ -211,7 +212,6 @@
 
     td { vertical-align: middle; padding: 0 24px; }
 
-    /* Line Number Badge */
     .td-line { width: 80px; }
     .badge {
       display: flex; align-items: center; justify-content: center;
@@ -225,13 +225,11 @@
     .bus .badge { background: var(--accent-bus); border-color: transparent; }
     .metro .badge { background: var(--accent-metro); border-color: transparent; }
 
-    /* Destination */
     .td-dest { 
       font-size: 1.15rem; font-weight: 600; 
       color: #e5e5e5;
     }
 
-    /* Time */
     .td-time { text-align: right; width: 140px; }
     
     .countdown-wrap {
@@ -240,7 +238,6 @@
     .val { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
     .unit { font-size: 0.85rem; font-weight: 500; color: var(--text-sec); }
 
-    /* Real time & Delay */
     .real-time-wrap {
       display: flex; justify-content: flex-end; align-items: center; gap: 8px;
       margin-top: 4px; 
@@ -259,7 +256,6 @@
     .delay-late { color: var(--status-warn); border: 1px solid rgba(245, 158, 11, 0.3); }
     .delay-early { color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
 
-    /* Status Colors */
     .status-soon .val { color: var(--status-warn); }
     .status-now .val { color: var(--status-alert); animation: pulse 2s infinite; }
 
@@ -282,6 +278,9 @@
 </head>
 <body>
 
+  <!-- ERROR BOX PRO DEBUG -->
+  <div id="global-error-box"></div>
+
   <header>
     <div class="header-left">
       <h1 id="day-display">Načítám...</h1>
@@ -289,12 +288,9 @@
       <div class="date-weather-row">
         <div id="date-display" class="date-large">...</div>
         
-        <!-- WEATHER (Inline & Colorful) -->
+        <!-- WEATHER -->
         <div class="weather-wrap" id="weather-box">
-          <!-- Ikona -->
           <div id="weather-icon-container" class="weather-icon"></div>
-          
-          <!-- Textový sloupec -->
           <div class="weather-text-col">
              <span id="weather-temp" class="weather-temp">--°</span>
              <span id="weather-desc" class="weather-desc"></span>
@@ -338,6 +334,14 @@
   </div>
 
   <script>
+    // --- GLOBAL ERROR HANDLER (pro staré tablety) ---
+    window.onerror = function(msg, url, line) {
+        var box = document.getElementById('global-error-box');
+        box.style.display = 'block';
+        box.innerHTML += "Error: " + msg + "\nLine: " + line + "\n\n";
+        return false;
+    };
+
     const API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDE1NCwiaWF0IjoxNzYzMDQ0OTYyLCJleHAiOjExNzYzMDQ0OTYyLCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYWI3ZTJlMjYtYmVjZS00MGNhLTlkYTItZGY1MzEzMjNmOTRhIn0.5P9OjGHaDP4wJ4f6w05fQZR1UARUgxk2gBuwDjpVrWU";
     const API_BASE = "https://api.golemio.cz/v2/pid/departureboards";
     const REFRESH_INTERVAL = 15000;
@@ -346,45 +350,44 @@
     
     let lastFetchTime = 0;
 
+    // ODSTRANĚNY ŠIPKOVÉ FUNKCE U FILTRŮ PRO KOMPATIBILITU
     const PANELS = [
       {
         id: 'bus',
-        url: `${API_BASE}?ids=U344Z4P&limit=20&minutesAfter=90&preferredTimezone=Europe/Prague`,
+        url: API_BASE + "?ids=U344Z4P&limit=20&minutesAfter=90&preferredTimezone=Europe/Prague",
         tbody: document.getElementById('tbody-bus'),
         errEl: document.getElementById('err-bus'),
-        filter: (d) => ["177", "181", "182"].includes(d.route?.short_name || d.route?.number)
+        filter: function(d) { 
+            // Bezpečný přístup bez optional chaining (?.)
+            var r = d.route; 
+            if (!r) return false;
+            var num = r.short_name || r.number;
+            return ["177", "181", "182"].indexOf(num) !== -1;
+        }
       },
       {
         id: 'metro',
-        url: `${API_BASE}?names=Opatov&limit=50&minutesAfter=90&preferredTimezone=Europe/Prague`,
+        url: API_BASE + "?names=Opatov&limit=50&minutesAfter=90&preferredTimezone=Europe/Prague",
         tbody: document.getElementById('tbody-metro'),
         errEl: document.getElementById('err-metro'),
-        filter: (d) => (d.route?.short_name === "C" && d.trip?.headsign !== "Háje")
+        filter: function(d) {
+            // Bezpečný přístup bez optional chaining (?.)
+            var r = d.route; 
+            var t = d.trip;
+            if (!r || !t) return false;
+            return r.short_name === "C" && t.headsign !== "Háje";
+        }
       }
     ];
 
-    // --- BAREVNÉ SVG IKONY PRO POČASÍ ---
     const weatherIcons = {
-      // Jasno (Slunce - Žlutá)
-      0: `<circle cx="12" cy="12" r="5" fill="#FDB813" /><g stroke="#FDB813" stroke-width="2"><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></g>`,
-      
-      // Polojasno
-      1: `<circle cx="10" cy="10" r="4" fill="#FDB813" /><path d="M18,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.7,19,18,19z" fill="#B0C4DE" />`,
-      
-      // Oblačno
-      2: `<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#B0C4DE" opacity="0.8"/>`,
-      
-      // Zataženo
-      3: `<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#9CA3AF"/>`,
-      
-      // Déšť
-      61: `<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#9CA3AF"/><line x1="8" y1="18" x2="7" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="18" x2="11" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="18" x2="15" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>`,
-      
-      // Sníh
-      71: `<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#B0C4DE"/><circle cx="8" cy="21" r="1.5" fill="white"/><circle cx="12" cy="20" r="1.5" fill="white"/><circle cx="16" cy="21" r="1.5" fill="white"/>`,
-      
-      // Bouřka
-      95: `<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#6B7280"/><polygon points="11 17 9 21 11 21 10 24 14 20 12 20 13 17" fill="#FDB813"/>`
+      0: '<circle cx="12" cy="12" r="5" fill="#FDB813" /><g stroke="#FDB813" stroke-width="2"><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></g>',
+      1: '<circle cx="10" cy="10" r="4" fill="#FDB813" /><path d="M18,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.7,19,18,19z" fill="#B0C4DE" />',
+      2: '<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#B0C4DE" opacity="0.8"/>',
+      3: '<path d="M17.5,19c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,19,17.5,19z" fill="#9CA3AF"/>',
+      61: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#9CA3AF"/><line x1="8" y1="18" x2="7" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="18" x2="11" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="18" x2="15" y2="22" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>',
+      71: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#B0C4DE"/><circle cx="8" cy="21" r="1.5" fill="white"/><circle cx="12" cy="20" r="1.5" fill="white"/><circle cx="16" cy="21" r="1.5" fill="white"/>',
+      95: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#6B7280"/><polygon points="11 17 9 21 11 21 10 24 14 20 12 20 13 17" fill="#FDB813"/>'
     };
 
     async function fetchWeather() {
@@ -394,7 +397,7 @@
         const data = await res.json();
         const cw = data.current_weather;
         
-        document.getElementById('weather-temp').innerText = `${Math.round(cw.temperature)}°`;
+        document.getElementById('weather-temp').innerText = Math.round(cw.temperature) + "°";
         
         const code = cw.weathercode;
         let svgInner = weatherIcons[code] || weatherIcons[2]; 
@@ -406,7 +409,7 @@
         if(code >= 95) svgInner = weatherIcons[95]; 
         
         document.getElementById('weather-icon-container').innerHTML = 
-          `<svg viewBox="0 0 24 24">${svgInner}</svg>`;
+          '<svg viewBox="0 0 24 24">' + svgInner + '</svg>';
           
         document.getElementById('weather-box').style.opacity = 1;
       } catch(e) {
@@ -415,7 +418,9 @@
     }
 
     function formatHM(date) {
-      return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+        var h = String(date.getHours()).padStart(2, "0");
+        var m = String(date.getMinutes()).padStart(2, "0");
+        return h + ":" + m;
     }
 
     function getDelayHTML(scheduled, predicted) {
@@ -426,7 +431,7 @@
       
       const sign = delayMin > 0 ? "+" : "";
       const cls = delayMin > 0 ? "delay-late" : "delay-early";
-      return `<span class="delay-pill ${cls}">${sign}${delayMin}</span>`;
+      return '<span class="delay-pill ' + cls + '">' + sign + delayMin + '</span>';
     }
 
     async function fetchAndRender(panel) {
@@ -437,45 +442,55 @@
         if (!res.ok) throw new Error(res.status);
         const json = await res.json();
         
-        const data = (json.departures || [])
-          .filter(d => { try { return panel.filter(d); } catch { return false; } })
-          .map(d => {
+        const rawData = json.departures || [];
+        
+        // BEZPEČNÁ TRANSFORMACE DAT (žádné ?.)
+        const data = rawData
+          .filter(function(d) { try { return panel.filter(d); } catch(e) { return false; } })
+          .map(function(d) {
             const ts = d.departure_timestamp || {};
             const sched = ts.scheduled ? new Date(ts.scheduled) : null;
             const pred = ts.predicted ? new Date(ts.predicted) : null;
             const eff = pred || sched;
+            
+            // Fallbacky pro staré prohlížeče
+            var line = "?";
+            if (d.route) line = d.route.short_name || "?";
+            
+            var dest = "?";
+            if (d.trip) dest = d.trip.headsign || "?";
+
             return {
-              line: d.route?.short_name || "?",
-              dest: d.trip?.headsign || "?",
-              sched, pred, eff,
+              line: line,
+              dest: dest,
+              sched: sched, pred: pred, eff: eff,
               ts: eff ? eff.getTime() : 0 
             };
           })
-          .filter(d => d.ts > 0)
-          .sort((a, b) => a.ts - b.ts)
+          .filter(function(d) { return d.ts > 0; })
+          .sort(function(a, b) { return a.ts - b.ts; })
           .slice(0, 7); 
 
         if (data.length === 0) {
-          panel.tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Žádné spoje v dohledu</td></tr>`;
+          panel.tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Žádné spoje v dohledu</td></tr>';
         } else {
-          panel.tbody.innerHTML = data.map(item => {
+          panel.tbody.innerHTML = data.map(function(item) {
             const delayHtml = getDelayHTML(item.sched, item.pred);
             const schedTime = item.sched ? formatHM(item.sched) : "";
             
-            return `
-            <tr data-ts="${item.ts}">
-              <td class="td-line"><div class="badge">${item.line}</div></td>
-              <td class="td-dest">${item.dest}</td>
-              <td class="td-time">
-                <div class="countdown-wrap">
-                  <span class="val">--</span><span class="unit">min</span>
-                </div>
-                <div class="real-time-wrap">
-                  <span class="sched-time">${schedTime}</span>
-                  ${delayHtml}
-                </div>
-              </td>
-            </tr>`;
+            return '<tr data-ts="' + item.ts + '">' +
+              '<td class="td-line"><div class="badge">' + item.line + '</div></td>' +
+              '<td class="td-dest">' + item.dest + '</td>' +
+              '<td class="td-time">' +
+                '<div class="countdown-wrap">' +
+                  '<span class="val">--</span><span class="unit">min</span>' +
+                '</div>' +
+                '<div class="real-time-wrap">' +
+                  '<span class="sched-time">' + schedTime + '</span>' +
+                  delayHtml +
+                '</div>' +
+              '</td>' +
+            '</tr>';
           }).join('');
         }
         panel.errEl.style.display = 'none';
@@ -483,12 +498,18 @@
       } catch (e) {
         console.error(panel.id, e);
         panel.errEl.style.display = 'inline-block';
+        // Debug info na obrazovku pro starý tablet
+        document.getElementById('global-error-box').innerText += panel.id + ": " + e.message + "\n";
       }
     }
 
     function updateTimersInDom(tbody) {
       const now = Date.now();
-      tbody.querySelectorAll('tr[data-ts]').forEach(row => {
+      const rows = tbody.querySelectorAll('tr[data-ts]');
+      
+      // Pro kompatibilitu používáme klasický for cyklus nebo Array.from
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
         const targetTs = parseInt(row.getAttribute('data-ts'));
         const diffSec = Math.floor((targetTs - now) / 1000);
         const valEl = row.querySelector('.val');
@@ -518,14 +539,14 @@
           valEl.textContent = val;
           unitEl.textContent = unit;
         }
-      });
+      }
     }
 
     function updateProgressBar() {
         const now = Date.now();
         const elapsed = now - lastFetchTime;
         const progress = Math.min((elapsed / REFRESH_INTERVAL) * 100, 100);
-        document.getElementById('refresh-bar').style.width = `${progress}%`;
+        document.getElementById('refresh-bar').style.width = progress + '%';
     }
 
     function tick() {
