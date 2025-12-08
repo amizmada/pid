@@ -1,0 +1,22 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Pozadí: Swiss Black -->
+    <rect width="512" height="512" rx="128" fill="#050505"/>
+    
+    <!-- Horní sekce (BUS) -->
+    <!-- Modrý Badge -->
+    <rect x="96" y="96" width="140" height="140" rx="40" fill="#3B82F6"/>
+    <!-- Jemný vnitřní lesk na badge -->
+    <path d="M96 136C96 113.909 113.909 96 136 96H196C218.091 96 236 113.909 236 136V160H96V136Z" fill="white" fill-opacity="0.1"/>
+    
+    <!-- Řádek textu (Tmavě šedá) -->
+    <rect x="270" y="136" width="146" height="60" rx="30" fill="#262626"/>
+
+    <!-- Dolní sekce (METRO) -->
+    <!-- Červený Badge -->
+    <rect x="96" y="276" width="140" height="140" rx="40" fill="#E11D2D"/>
+    <!-- Jemný vnitřní lesk na badge -->
+    <path d="M96 316C96 293.909 113.909 276 136 276H196C218.091 276 236 293.909 236 316V340H96V316Z" fill="white" fill-opacity="0.1"/>
+    
+    <!-- Řádek textu (Tmavě šedá) -->
+    <rect x="270" y="316" width="146" height="60" rx="30" fill="#262626"/>
+</svg>
