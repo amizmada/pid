@@ -2,23 +2,19 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>PID Dashboard</title>
+  <title>PID Dashboard: App Mode Fix</title>
   
-  <!-- META TAGY PRO FULLSCREEN A WEB APP -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  
-  <!-- Odkaz na manifest (TOTO SCHOVÁ LIŠTU V CHROME) -->
-  <link rel="manifest" href="manifest.json">
-  
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#000000">
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
   <meta http-equiv="refresh" content="10800">
 
   <style>
-    /* === ZÁKLADNÍ STYLY (Stejné jako předtím) === */
+    /* === STYLY (Stejné jako předtím) === */
     body { background-color: #050505; color: #FFFFFF; font-family: sans-serif; margin: 0; padding: 16px; height: 100vh; overflow: hidden; box-sizing: border-box; }
     
     header { display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; -webkit-align-items: flex-end; align-items: flex-end; border-bottom: 1px solid #262626; padding-bottom: 20px; margin-bottom: 20px; position: relative; }
@@ -74,7 +70,6 @@
     
     .sched-time { font-weight: bold; color: #ccc; font-size: 1rem; }
 
-    /* === STYLY ZPOŽDĚNÍ (ŽLUTÁ) === */
     .status-now .val { color: #E11D2D; }
     .status-soon .val { color: #FFCC00; }
     
@@ -88,7 +83,6 @@
         font-size: 14px; padding: 15px; display: none; z-index: 9999; font-family: monospace; white-space: pre-wrap;
     }
 
-    /* === MOBILNÍ ZOBRAZENÍ === */
     @media (max-width: 900px) {
         body { padding: 10px; overflow-y: auto; height: auto; }
         header { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: flex-start; align-items: flex-start; }
@@ -99,7 +93,6 @@
         .panel { margin: 0 0 20px 0; height: 380px; }
     }
 
-    /* === TABLET LANDSCAPE === */
     @media (max-width: 900px) and (orientation: landscape) {
         body { overflow: hidden; padding: 12px; height: 100vh; }
         header { -webkit-flex-direction: row; flex-direction: row; -webkit-align-items: flex-end; align-items: flex-end; padding-bottom: 15px; margin-bottom: 15px; }
@@ -116,7 +109,6 @@
 </head>
 <body>
 
-  <!-- Error Console pro debug -->
   <div id="error-console"></div>
 
   <header>
@@ -142,9 +134,11 @@
       <div class="panel-head">
         <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg></div>
         <span class="panel-title">Litochlebské nám.</span>
+        <!-- ID místo elementu -->
         <span id="err-bus" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">NAČÍTÁM...</span>
       </div>
       <div class="list-container">
+        <!-- ID místo elementu -->
         <table><tbody id="tbody-bus"></tbody></table>
       </div>
     </div>
@@ -154,18 +148,19 @@
       <div class="panel-head">
         <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M12 2c-4.42 0-8 .5-8 4v10c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg></div>
         <span class="panel-title">Metro C – Opatov</span>
+        <!-- ID místo elementu -->
         <span id="err-metro" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">NAČÍTÁM...</span>
       </div>
       <div class="list-container">
+        <!-- ID místo elementu -->
         <table><tbody id="tbody-metro"></tbody></table>
       </div>
     </div>
   </div>
 
   <script>
-    // --- JS LOGIKA PŘEPSANÁ DO ES5 (STARÝ JS) PRO KOMPATIBILITU ---
+    // --- JS LOGIKA (ES5 Kompatibilní) ---
 
-    // Error Handler
     window.onerror = function(msg, url, line) {
        var el = document.getElementById('error-console');
        if(el) {
@@ -175,6 +170,7 @@
        return false;
     };
 
+    // Používáme 'var' místo 'const'
     var API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDE1NCwiaWF0IjoxNzYzMDQ0OTYyLCJleHAiOjExNzYzMDQ0OTYyLCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYWI3ZTJlMjYtYmVjZS00MGNhLTlkYTItZGY1MzEzMjNmOTRhIn0.5P9OjGHaDP4wJ4f6w05fQZR1UARUgxk2gBuwDjpVrWU";
     var API_BASE = "https://api.golemio.cz/v2/pid/departureboards";
     var WEATHER_API = "https://api.open-meteo.com/v1/forecast?latitude=50.03&longitude=14.51&current_weather=true";
@@ -182,12 +178,13 @@
     
     var lastFetchTime = 0;
 
+    // Používáme ID řetězce (strings), ne objekty
     var PANELS = [
       {
         id: 'bus',
         url: API_BASE + "?ids=U344Z4P&limit=20&minutesAfter=90&preferredTimezone=Europe/Prague",
-        tbody: document.getElementById('tbody-bus'),
-        errEl: document.getElementById('err-bus'),
+        tbodyId: 'tbody-bus', 
+        errElId: 'err-bus',   
         filter: function(d) { 
             if (!d.route) return false;
             var num = d.route.short_name || d.route.number;
@@ -197,8 +194,8 @@
       {
         id: 'metro',
         url: API_BASE + "?names=Opatov&limit=50&minutesAfter=90&preferredTimezone=Europe/Prague",
-        tbody: document.getElementById('tbody-metro'),
-        errEl: document.getElementById('err-metro'),
+        tbodyId: 'tbody-metro', 
+        errElId: 'err-metro',   
         filter: function(d) {
             if (!d.route || !d.trip) return false;
             return d.route.short_name === "C" && d.trip.headsign !== "Háje";
@@ -216,7 +213,6 @@
         95: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#6B7280"/><polygon points="11 17 9 21 11 21 10 24 14 20 12 20 13 17" fill="#FDB813"/>'
     };
 
-    // AJAX GET (Místo fetch)
     function ajaxGet(url, token, callback) {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -256,15 +252,20 @@
       
       var sign = delayMin > 0 ? "+" : "";
       var cls = delayMin > 0 ? "delay-late" : "delay-early";
-      // Použita nová třída .delay-pill
       return '<span class="delay-pill">' + sign + delayMin + ' min</span>';
     }
 
     function loadPanelData(panel) {
+        // TADY SE MĚNÍ LOGIKA: Hledáme elementy až uvnitř funkce
+        var tbody = document.getElementById(panel.tbodyId);
+        var errEl = document.getElementById(panel.errElId);
+
         ajaxGet(panel.url, API_TOKEN, function(err, data) {
             if (err) {
-                panel.errEl.style.display = 'inline';
-                panel.errEl.innerText = err;
+                if(errEl) {
+                    errEl.style.display = 'inline';
+                    errEl.innerText = err;
+                }
                 return;
             }
             
@@ -318,9 +319,11 @@
                         '</tr>';
                 }
             }
-            panel.tbody.innerHTML = html;
-            panel.errEl.style.display = 'none';
-            updateTimersInDom(panel.tbody);
+            if(tbody) {
+                tbody.innerHTML = html;
+                updateTimersInDom(tbody); // Předáváme nalezený element
+            }
+            if(errEl) errEl.style.display = 'none';
         });
     }
 
@@ -329,7 +332,8 @@
             if (err) return;
             if (data.current_weather) {
                 var t = Math.round(data.current_weather.temperature);
-                document.getElementById('weather-temp').innerText = t + "°";
+                var elTemp = document.getElementById('weather-temp');
+                if(elTemp) elTemp.innerText = t + "°";
                 
                 var code = data.current_weather.weathercode;
                 var svg = W_ICONS[2]; 
@@ -341,19 +345,26 @@
                     else if (code >= 95) svg = W_ICONS[95];
                 }
                 
-                document.getElementById('weather-icon').innerHTML = '<svg viewBox="0 0 24 24">' + svg + '</svg>';
+                var elIcon = document.getElementById('weather-icon');
+                if(elIcon) elIcon.innerHTML = '<svg viewBox="0 0 24 24">' + svg + '</svg>';
                 
                 var desc = "zataženo";
                 if(code === 0) desc = "jasno";
                 if(code === 1) desc = "polojasno";
                 if(code > 50) desc = "srážky";
-                document.getElementById('weather-desc').innerText = desc;
-                document.getElementById('weather-box').style.opacity = 1;
+                
+                var elDesc = document.getElementById('weather-desc');
+                if(elDesc) elDesc.innerText = desc;
+                
+                var elBox = document.getElementById('weather-box');
+                if(elBox) elBox.style.opacity = 1;
             }
         });
     }
 
     function updateTimersInDom(tbody) {
+        if(!tbody) return; // FIX: Pokud tbody neexistuje, skonči
+        
         var now = new Date().getTime();
         var rows = tbody.querySelectorAll('tr[data-ts]');
         for (var i = 0; i < rows.length; i++) {
@@ -363,7 +374,7 @@
             var valEl = row.querySelector('.val');
             var unitEl = row.querySelector('.unit');
             
-            // Reset colors (manually in ES5)
+            // Reset colors
             valEl.style.color = "#ffffff";
 
             if (diffSec < -30) {
@@ -380,7 +391,7 @@
                         text = s; unit = "s"; valEl.style.color = "#E11D2D";
                     } else {
                         text = m; unit = "min";
-                        if (m < 5) valEl.style.color = "#FFCC00"; // YELLOW
+                        if (m < 5) valEl.style.color = "#FFCC00"; 
                     }
                 }
                 valEl.innerText = text;
@@ -390,28 +401,39 @@
     }
 
     function updateProgressBar() {
+        var bar = document.getElementById('refresh-bar');
+        if(!bar) return; // FIX: Pokud bar neexistuje, skonči
+        
         var now = Date.now();
         var elapsed = now - lastFetchTime;
         var progress = Math.min((elapsed / REFRESH_INTERVAL) * 100, 100);
-        document.getElementById('refresh-bar').style.width = progress + '%';
+        bar.style.width = progress + '%';
     }
 
     function tick() {
       var now = new Date();
-      var h = ("0" + now.getHours()).slice(-2);
-      var m = ("0" + now.getMinutes()).slice(-2);
-      var s = ("0" + now.getSeconds()).slice(-2);
-      document.getElementById('clock').innerText = h + ":" + m + ":" + s;
+      var elClock = document.getElementById('clock');
+      if(elClock) {
+          elClock.innerText = now.toLocaleTimeString('cs-CZ', {
+              hour: '2-digit', minute:'2-digit', second: '2-digit'
+          });
+      }
       
       var days = ["Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota"];
       var dayName = days[now.getDay()];
       var dateStr = now.getDate() + ". " + (now.getMonth() + 1) + ". " + now.getFullYear();
       
-      document.getElementById('day-display').innerText = dayName;
-      document.getElementById('date-display').innerText = dateStr;
+      var elDay = document.getElementById('day-display');
+      if(elDay) elDay.innerText = dayName;
+      
+      var elDate = document.getElementById('date-display');
+      if(elDate) elDate.innerText = dateStr;
 
-      updateTimersInDom(document.getElementById('tbody-bus'));
-      updateTimersInDom(document.getElementById('tbody-metro'));
+      var tbodyBus = document.getElementById('tbody-bus');
+      if(tbodyBus) updateTimersInDom(tbodyBus);
+      
+      var tbodyMetro = document.getElementById('tbody-metro');
+      if(tbodyMetro) updateTimersInDom(tbodyMetro);
       
       updateProgressBar();
     }
@@ -423,14 +445,16 @@
         }
     }
 
-    // INIT
-    tick();
-    dataLoop();
-    loadWeather();
+    // INIT using DOMContentLoaded (Bezpečnější start)
+    document.addEventListener("DOMContentLoaded", function() {
+        tick();
+        dataLoop();
+        loadWeather();
 
-    setInterval(tick, 1000);
-    setInterval(dataLoop, REFRESH_INTERVAL); 
-    setInterval(loadWeather, 900000);
+        setInterval(tick, 1000);
+        setInterval(dataLoop, REFRESH_INTERVAL); 
+        setInterval(loadWeather, 900000);
+    });
 
   </script>
 </body>
