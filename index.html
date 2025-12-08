@@ -4,133 +4,50 @@
   <meta charset="UTF-8" />
   <title>PID Dashboard</title>
   
-  <!-- === ZMĚNA: PŘIDÁNY META TAGY PRO FULLSCREEN (WEB APP) === -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- META TAGY PRO FULLSCREEN (KIOSK) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#000000">
-  <!-- ========================================================= -->
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta http-equiv="refresh" content="10800">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
   <style>
+    /* === ZÁKLADNÍ DESKTOP STYLY === */
+    body { background-color: #050505; color: #FFFFFF; font-family: sans-serif; margin: 0; padding: 16px; height: 100vh; overflow: hidden; box-sizing: border-box; }
+    
+    /* === BARVY === */
     :root {
-      /* Swiss Premium Palette */
       --bg-color: #050505;
       --panel-bg: #111111;
       --border-color: #262626;
-      
       --accent-bus: #3B82F6; 
       --accent-metro: #E11D2D; 
-      
       --text-main: #FFFFFF;
       --text-sec: #888888;
       
-      --status-warn: #F59E0B;
+      /* NOVÁ ŽLUTÁ PRO ZPOŽDĚNÍ */
+      --status-warn: #FFCC00; 
       --status-alert: #EF4444;
     }
 
-    * { box-sizing: border-box; }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      font-family: 'Inter', -apple-system, sans-serif;
-      margin: 0;
-      padding: 32px;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      user-select: none;
-    }
-
-    /* DEBUG ERROR BOX */
-    #global-error-box {
-        position: fixed; top: 0; left: 0; right: 0; 
-        background: #990000; color: white; padding: 20px; 
-        z-index: 9999; font-family: monospace; font-size: 14px;
-        display: none; white-space: pre-wrap;
-    }
-
-    /* --- HEADER (DESKTOP DEFAULT) --- */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border-color);
-      margin-bottom: 32px;
-      position: relative;
-    }
-
-    .header-left { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 6px; 
-      justify-content: flex-end; 
-      flex: 1; /* Aby zabral místo vlevo */
-    }
+    header { display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; -webkit-align-items: flex-end; align-items: flex-end; border-bottom: 1px solid #262626; padding-bottom: 20px; margin-bottom: 20px; position: relative; }
     
-    h1 {
-      margin: 0; font-size: 1.1rem; font-weight: 600; 
-      text-transform: uppercase; letter-spacing: 2px; 
-      color: var(--text-sec);
-      margin-bottom: 4px;
-    }
+    .header-left { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
+    .header-left h1 { margin: 0; font-size: 1rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
     
-    /* Kontejner pro Datum + Počasí */
-    .date-weather-row {
-      display: flex;
-      align-items: center; 
-      gap: 28px;
-    }
-
-    .date-large {
-      font-size: 1.6rem; 
-      font-weight: 700; 
-      letter-spacing: -0.5px;
-      color: #eee;
-      line-height: 1;
-      white-space: nowrap; /* Zabrání zalamování data */
-    }
-
-    .weather-wrap {
-      display: flex; 
-      align-items: center; 
-      gap: 14px;
-      padding-left: 28px;
-      border-left: 1px solid #333;
-      opacity: 0; transition: opacity 1s;
-    }
+    .date-row { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
+    .date-large { font-size: 1.8rem; font-weight: bold; margin-top: 5px; color: #eee; white-space: nowrap; }
     
-    .weather-icon { 
-        width: 48px; height: 48px; 
-        display: flex; align-items: center; justify-content: center;
-        transform: translateY(-4px); 
-        overflow: visible; 
-    }
-    .weather-icon svg { width: 100%; height: 100%; overflow: visible; }
+    .weather-wrap { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; margin-left: 20px; padding-left: 20px; border-left: 1px solid #333; height: 30px; opacity: 1; }
+    .weather-icon { width: 32px; height: 32px; margin-right: 8px; font-size: 24px; line-height: 32px; }
+    .weather-icon svg { width: 100%; height: 100%; }
+    .weather-text { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
+    .weather-temp { font-size: 1.2rem; font-weight: bold; color: #fff; line-height: 1; }
+    .weather-desc { color: #888; font-size: 0.8rem; text-transform: lowercase; line-height: 1; margin-top: 2px; }
     
-    .weather-text-col {
-        display: flex; flex-direction: column; 
-        justify-content: center; line-height: 1.1;
-    }
-
-    .weather-temp { font-size: 1.6rem; font-weight: 700; color: #fff; }
-    .weather-desc { font-size: 0.95rem; color: var(--text-sec); text-transform: lowercase; font-weight: 500; white-space: nowrap;}
-
-    .clock {
-      font-size: 3.5rem; font-weight: 800; 
-      font-variant-numeric: tabular-nums;
-      line-height: 0.8; letter-spacing: -2px;
-      margin-left: 20px; /* Odstup od levé části */
-    }
+    .clock { font-size: 2.5rem; font-weight: bold; color: #fff; }
 
     .refresh-bar {
       position: absolute; bottom: -1px; left: 0; height: 2px;
@@ -139,207 +56,161 @@
       box-shadow: 0 0 8px rgba(255, 255, 255, 0.4); 
     }
 
-    /* --- GRID --- */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px; 
-      flex: 1;
-      min-height: 0;
-    }
-
-    .panel {
-      display: flex; flex-direction: column; position: relative;
-      background: var(--panel-bg);
-      border-radius: 16px; border: 1px solid var(--border-color);
-      overflow: hidden;
-    }
-
-    .panel-head {
-      display: flex; align-items: center; gap: 12px;
-      padding: 20px 24px; border-bottom: 1px solid var(--border-color);
-      background: rgba(255,255,255,0.02); z-index: 1;
-    }
-
-    .icon-box {
-      width: 24px; height: 24px; display: grid; place-items: center;
-    }
+    .grid { display: -webkit-flex; display: flex; width: 100%; height: calc(100% - 120px); }
+    .panel { -webkit-flex: 1; flex: 1; background: #111; border: 1px solid #222; border-radius: 12px; margin: 0 10px; display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; overflow: hidden; }
+    
+    .panel-head { padding: 15px; border-bottom: 1px solid #222; background: #1a1a1a; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
+    .icon-box { width: 24px; height: 24px; margin-right: 10px; }
     .icon-box svg { width: 100%; height: 100%; fill: currentColor; }
+    .bus .icon-box { color: #3B82F6; }
+    .metro .icon-box { color: #E11D2D; }
+    .panel-title { font-weight: bold; font-size: 1rem; text-transform: uppercase; color: #fff; }
     
-    .bus .icon-box { color: var(--accent-bus); }
-    .metro .icon-box { color: var(--accent-metro); }
-
-    .panel-title {
-      font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
-      color: var(--text-main);
-    }
-
-    .error-tag {
-      background: var(--status-alert); color: #fff;
-      font-size: 0.65rem; font-weight: 800; padding: 3px 8px;
-      border-radius: 4px; display: none; margin-left: auto;
-    }
-
-    .list-container {
-      flex: 1; overflow-y: hidden; z-index: 1; padding: 8px 0;
-    }
-
+    .list-container { -webkit-flex: 1; flex: 1; overflow-y: hidden; padding: 5px 0; }
     table { width: 100%; border-collapse: collapse; }
+    tr { height: 60px; border-bottom: 1px solid #222; }
+    td { padding: 0 10px; vertical-align: middle; }
     
-    tr {
-      height: 64px; border-bottom: 1px solid rgba(255,255,255,0.03);
-      transition: background 0.2s;
-    }
-    tr:last-child { border-bottom: none; }
-
-    td { vertical-align: middle; padding: 0 24px; }
-
-    .td-line { width: 80px; }
-    .badge {
-      display: flex; align-items: center; justify-content: center;
-      width: 52px; height: 34px;
-      font-size: 1.2rem; font-weight: 800;
-      color: #fff; background: #222;
-      border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);
-    }
-    .bus .badge { background: var(--accent-bus); border-color: transparent; }
-    .metro .badge { background: var(--accent-metro); border-color: transparent; }
-
-    .td-dest { font-size: 1.15rem; font-weight: 600; color: #e5e5e5; }
-    .td-time { text-align: right; width: 140px; }
+    .badge { background: #222; color: #fff; padding: 0; border-radius: 4px; font-weight: bold; font-size: 1.1rem; display: inline-block; width: 48px; height: 32px; line-height: 32px; text-align: center; }
+    .bus .badge { background: #3B82F6; }
+    .metro .badge { background: #E11D2D; }
     
-    .countdown-wrap { display: flex; align-items: baseline; justify-content: flex-end; gap: 4px; }
-    .val { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
-    .unit { font-size: 0.85rem; font-weight: 500; color: var(--text-sec); }
+    .td-dest { font-size: 1.1rem; font-weight: bold; color: #ddd; }
+    .td-time { text-align: right; width: 100px; }
+    
+    .countdown-wrap { display: -webkit-flex; display: flex; -webkit-justify-content: flex-end; justify-content: flex-end; -webkit-align-items: baseline; align-items: baseline; }
+    .val { font-size: 1.4rem; font-weight: bold; }
+    .unit { font-size: 0.8rem; color: #888; margin-left: 3px; }
+    .real-time { font-size: 0.8rem; color: #666; margin-top: 2px; }
+    
+    .sched-time { font-weight: bold; color: #ccc; font-size: 1rem; }
 
-    .real-time-wrap {
-      display: flex; justify-content: flex-end; align-items: center; gap: 8px;
-      margin-top: 4px; 
-    }
-    .sched-time { font-size: 1.1rem; font-weight: 600; color: #d4d4d4; font-family: 'Inter', monospace; }
-    .delay-pill { font-size: 0.7rem; font-weight: 700; padding: 1px 4px; border-radius: 3px; }
-    .delay-late { color: var(--status-warn); border: 1px solid rgba(245, 158, 11, 0.3); }
-    .delay-early { color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
-
+    /* === STYLY ZPOŽDĚNÍ (ŽLUTÁ) === */
+    .status-now .val { color: #E11D2D; }
     .status-soon .val { color: var(--status-warn); }
-    .status-now .val { color: var(--status-alert); animation: pulse 2s infinite; }
+    
+    .delay-pill { 
+        font-size: 0.75rem; 
+        font-weight: 800; 
+        color: #000; /* Černé písmo pro kontrast */
+        background-color: var(--status-warn); /* Žluté pozadí */
+        margin-left: 6px; 
+        padding: 2px 5px; 
+        border-radius: 4px;
+        display: inline-block;
+        vertical-align: middle;
+    }
 
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-    .empty-state { text-align: center; padding: 40px; color: var(--text-sec); font-weight: 500; }
+    #error-console { 
+        position: absolute; top: 0; left: 0; width: 100%; background: #900; color: white; 
+        font-size: 14px; padding: 15px; display: none; z-index: 9999; font-family: monospace; white-space: pre-wrap;
+    }
 
-    /* === MOBILE OPTIMIZATION === */
+    /* === MOBILNÍ ZOBRAZENÍ (Portrait - Telefon) === */
     @media (max-width: 900px) {
-      body { 
-          padding: 16px; 
-          height: auto; 
-          overflow-y: auto; 
-          overflow-x: hidden; /* Zabrání posunu do stran */
-      }
-      
-      /* Přestavba Headeru */
-      header { 
-          flex-wrap: wrap; /* Povolí zalamování */
-          gap: 16px;
-          margin-bottom: 20px;
-          align-items: center;
-      }
-      
-      /* Den v týdnu nahoře */
-      .header-left h1 {
-          font-size: 1rem;
-          width: 100%; /* Den zabere celý řádek nahoře */
-      }
+        body { padding: 10px; overflow-y: auto; height: auto; }
+        
+        header { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: flex-start; align-items: flex-start; }
+        .clock { position: absolute; top: 0; right: 0; font-size: 1.8rem; margin-top: 0; }
+        
+        .date-row { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: flex-start; align-items: flex-start; }
+        .date-large { font-size: 1.5rem; }
+        
+        .weather-wrap { margin-left: 0; padding-left: 0; border-left: none; margin-top: 10px; height: auto; }
+        
+        .grid { -webkit-flex-direction: column; flex-direction: column; height: auto; display: block; }
+        .panel { margin: 0 0 20px 0; height: 380px; }
+    }
 
-      /* Datum a Počasí se poskládají pod sebe */
-      .date-weather-row { 
-          flex-direction: column; 
-          align-items: flex-start;
-          gap: 8px;
-      }
-      
-      .date-large {
-          font-size: 1.8rem; /* Trochu větší na mobilu */
-      }
+    /* === OPRAVA PRO TABLET NA ŠÍŘKU (Landscape) === */
+    @media (max-width: 900px) and (orientation: landscape) {
+        body { 
+            overflow: hidden; 
+            padding: 12px;
+            height: 100vh;
+        }
 
-      /* Počasí - odstraníme čáru a posuneme doleva */
-      .weather-wrap {
-          border-left: none;
-          padding-left: 0;
-      }
+        header {
+            -webkit-flex-direction: row; flex-direction: row;
+            -webkit-align-items: flex-end; align-items: flex-end;
+            padding-bottom: 15px; margin-bottom: 15px;
+        }
+        
+        .clock {
+            position: relative; top: auto; right: auto; margin: 0;
+            font-size: 2.2rem;
+        }
 
-      /* Hodiny - přesuneme je vizuálně nahoru napravo absolutně */
-      .clock { 
-          position: absolute;
-          top: 0;
-          right: 0;
-          font-size: 2rem;
-          margin-left: 0;
-          line-height: 1.2;
-      }
+        .date-row {
+            -webkit-flex-direction: row; flex-direction: row;
+            -webkit-align-items: center; align-items: center;
+        }
+        .date-large { font-size: 1.5rem; margin-top: 0; }
 
-      /* Grid se změní na jeden sloupec */
-      .grid { grid-template-columns: 1fr; gap: 24px; }
-      
-      /* Úprava tabulky na mobilu */
-      .td-line { width: 60px; }
-      td { padding: 0 12px; }
-      .td-dest { font-size: 1rem; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
-      .td-time { width: 100px; }
-      .val { font-size: 1.3rem; }
-      .sched-time { font-size: 0.9rem; }
+        .weather-wrap {
+            margin-left: 15px; padding-left: 15px; 
+            border-left: 1px solid #333; margin-top: 0;
+            height: 30px;
+        }
+
+        .grid {
+            display: -webkit-flex; display: flex;
+            -webkit-flex-direction: row; flex-direction: row;
+            height: calc(100% - 100px); 
+        }
+
+        .panel {
+            -webkit-flex: 1; flex: 1;
+            margin: 0 8px; 
+            height: 100%;
+        }
+        
+        .badge { width: 42px; font-size: 1rem; }
+        .td-dest { font-size: 1rem; }
+        .val { font-size: 1.3rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ERROR BOX PRO DEBUG -->
-  <div id="global-error-box"></div>
+  <div id="error-console"></div>
 
   <header>
     <div class="header-left">
       <h1 id="day-display">Načítám...</h1>
-      
-      <div class="date-weather-row">
+      <div class="date-row">
         <div id="date-display" class="date-large">...</div>
-        
-        <!-- WEATHER -->
         <div class="weather-wrap" id="weather-box">
-          <div id="weather-icon-container" class="weather-icon"></div>
-          <div class="weather-text-col">
+          <div id="weather-icon" class="weather-icon"></div>
+          <div class="weather-text">
              <span id="weather-temp" class="weather-temp">--°</span>
              <span id="weather-desc" class="weather-desc"></span>
           </div>
         </div>
       </div>
     </div>
-    
-    <div id="clock" class="clock">--:--:--</div>
-    <div id="refresh-bar" class="refresh-bar"></div>
+    <div id="clock" class="clock">--:--</div>
   </header>
 
   <div class="grid">
-    <!-- BUS PANEL -->
+    <!-- PANEL BUS -->
     <div class="panel bus">
       <div class="panel-head">
-        <div class="icon-box">
-          <svg viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg>
-        </div>
-        <div class="panel-title">Litochlebské nám.</div>
-        <div id="err-bus" class="error-tag">ERR</div>
+        <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg></div>
+        <span class="panel-title">Litochlebské nám.</span>
+        <span id="err-bus" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">NAČÍTÁM...</span>
       </div>
       <div class="list-container">
         <table><tbody id="tbody-bus"></tbody></table>
       </div>
     </div>
 
-    <!-- METRO PANEL -->
+    <!-- PANEL METRO -->
     <div class="panel metro">
       <div class="panel-head">
-        <div class="icon-box">
-          <svg viewBox="0 0 24 24"><path d="M12 2c-4.42 0-8 .5-8 4v10c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg>
-        </div>
-        <div class="panel-title">Metro C – Opatov</div>
-        <div id="err-metro" class="error-tag">ERR</div>
+        <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M12 2c-4.42 0-8 .5-8 4v10c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg></div>
+        <span class="panel-title">Metro C – Opatov</span>
+        <span id="err-metro" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">NAČÍTÁM...</span>
       </div>
       <div class="list-container">
         <table><tbody id="tbody-metro"></tbody></table>
@@ -348,11 +219,15 @@
   </div>
 
   <script>
+    // --- JS LOGIKA (ES6 kompatibilní, protože Chrome je aktualizovaný) ---
+
     window.onerror = function(msg, url, line) {
-        var box = document.getElementById('global-error-box');
-        box.style.display = 'block';
-        box.innerHTML += "Error: " + msg + "\nLine: " + line + "\n\n";
-        return false;
+       var el = document.getElementById('error-console');
+       if(el) {
+           el.style.display = 'block';
+           el.innerText = "JS Error: " + msg + " (Line " + line + ")";
+       }
+       return false;
     };
 
     const API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDE1NCwiaWF0IjoxNzYzMDQ0OTYyLCJleHAiOjExNzYzMDQ0OTYyLCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYWI3ZTJlMjYtYmVjZS00MGNhLTlkYTItZGY1MzEzMjNmOTRhIn0.5P9OjGHaDP4wJ4f6w05fQZR1UARUgxk2gBuwDjpVrWU";
@@ -366,7 +241,7 @@
     const PANELS = [
       {
         id: 'bus',
-        url: API_BASE + "?ids=U344Z4P&limit=20&minutesAfter=90&preferredTimezone=Europe/Prague",
+        url: `${API_BASE}?ids=U344Z4P&limit=20&minutesAfter=90&preferredTimezone=Europe/Prague`,
         tbody: document.getElementById('tbody-bus'),
         errEl: document.getElementById('err-bus'),
         filter: function(d) { 
@@ -378,7 +253,7 @@
       },
       {
         id: 'metro',
-        url: API_BASE + "?names=Opatov&limit=50&minutesAfter=90&preferredTimezone=Europe/Prague",
+        url: `${API_BASE}?names=Opatov&limit=50&minutesAfter=90&preferredTimezone=Europe/Prague`,
         tbody: document.getElementById('tbody-metro'),
         errEl: document.getElementById('err-metro'),
         filter: function(d) {
@@ -400,104 +275,86 @@
       95: '<path d="M17.5,17c0-1.7-1.3-3-3-3c-0.4,0-0.7,0.1-1,0.3c-0.4-1.2-1.5-2-2.8-2c-1.7,0-3,1.3-3,3c0,0,0,0,0,0h-0.5c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5h10.5c1.7,0,3-1.3,3-3S19.2,17,17.5,17z" fill="#6B7280"/><polygon points="11 17 9 21 11 21 10 24 14 20 12 20 13 17" fill="#FDB813"/>'
     };
 
-    function ajaxGet(url, token, callback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-        if (token) {
-            xhr.setRequestHeader("x-access-token", token);
-            xhr.setRequestHeader("Content-Type", "application/json");
-        }
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    try {
-                        var json = JSON.parse(xhr.responseText);
-                        callback(null, json);
-                    } catch (e) {
-                        callback("JSON Chyba", null);
-                    }
-                } else {
-                    callback("HTTP " + xhr.status, null);
-                }
-            }
-        };
-        xhr.onerror = function() { callback("Síťová Chyba", null); };
-        xhr.send();
-    }
-
     function formatHM(date) {
         var h = ("0" + date.getHours()).slice(-2);
         var m = ("0" + date.getMinutes()).slice(-2);
         return h + ":" + m;
     }
 
-    function loadPanelData(panel) {
-        ajaxGet(panel.url, API_TOKEN, function(err, data) {
-            if (err) {
-                panel.errEl.style.display = 'inline';
-                panel.errEl.innerText = err;
-                return;
-            }
-            
-            var raw = data.departures || [];
-            var items = [];
-            
-            for (var i = 0; i < raw.length; i++) {
-                var d = raw[i];
-                try { if (!panel.filter(d)) continue; } catch(e) { continue; }
+    function getDelayHTML(scheduled, predicted) {
+      if (!scheduled || !predicted) return "";
+      const diffMs = predicted - scheduled;
+      const delayMin = Math.round(diffMs / 60000);
+      if (delayMin === 0) return "";
+      
+      const sign = delayMin > 0 ? "+" : "";
+      /* VŽDY VRÁTÍME TŘÍDU .delay-pill (žlutou) */
+      return '<span class="delay-pill">' + sign + delayMin + ' min</span>';
+    }
 
-                var ts = d.departure_timestamp || {};
-                var sched = ts.scheduled ? new Date(ts.scheduled) : null;
-                var pred = ts.predicted ? new Date(ts.predicted) : null;
-                var eff = pred || sched;
-                
-                if (!eff) continue;
-
-                var line = (d.route && d.route.short_name) ? d.route.short_name : "?";
-                var dest = (d.trip && d.trip.headsign) ? d.trip.headsign : "?";
-
-                var delayHtml = "";
-                if (sched && pred) {
-                    var diff = Math.round((pred - sched) / 60000);
-                    if (diff > 0) delayHtml = '<span class="delay-pill">+' + diff + ' min</span>';
-                }
-
-                items.push({
-                    line: line, dest: dest,
-                    schedTime: sched ? formatHM(sched) : "",
-                    ts: eff.getTime(),
-                    delayHtml: delayHtml
-                });
-            }
-
-            items.sort(function(a, b) { return a.ts - b.ts; });
-            items = items.slice(0, 7);
-
-            var html = "";
-            if (items.length === 0) {
-                html = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#666">Žádné spoje</td></tr>';
-            } else {
-                for (var j = 0; j < items.length; j++) {
-                    var item = items[j];
-                    html += '<tr data-ts="' + item.ts + '">' +
-                        '<td><div class="badge">' + item.line + '</div></td>' +
-                        '<td class="td-dest">' + item.dest + '</td>' +
-                        '<td class="td-time">' +
-                            '<div class="countdown-wrap"><span class="val">--</span><span class="unit">min</span></div>' +
-                            '<div class="real-time">' + item.schedTime + item.delayHtml + '</div>' +
-                        '</td>' +
-                        '</tr>';
-                }
-            }
-            panel.tbody.innerHTML = html;
-            panel.errEl.style.display = 'none';
-            updateTimersInDom(panel.tbody);
+    async function fetchAndRender(panel) {
+      try {
+        const res = await fetch(panel.url, {
+          headers: { "x-access-token": API_TOKEN, "Content-Type": "application/json" }
         });
+        if (!res.ok) throw new Error(res.status);
+        const json = await res.json();
+        
+        const rawData = json.departures || [];
+        
+        const data = rawData
+          .filter(function(d) { try { return panel.filter(d); } catch(e) { return false; } })
+          .map(function(d) {
+            const ts = d.departure_timestamp || {};
+            const sched = ts.scheduled ? new Date(ts.scheduled) : null;
+            const pred = ts.predicted ? new Date(ts.predicted) : null;
+            const eff = pred || sched;
+            
+            var line = "?";
+            if (d.route) line = d.route.short_name || "?";
+            
+            var dest = "?";
+            if (d.trip) dest = d.trip.headsign || "?";
+
+            return {
+              line: line, dest: dest,
+              sched: sched, pred: pred, eff: eff,
+              ts: eff ? eff.getTime() : 0 
+            };
+          })
+          .filter(function(d) { return d.ts > 0; })
+          .sort(function(a, b) { return a.ts - b.ts; })
+          .slice(0, 7); 
+
+        if (data.length === 0) {
+          panel.tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Žádné spoje v dohledu</td></tr>';
+        } else {
+          panel.tbody.innerHTML = data.map(function(item) {
+            const delayHtml = getDelayHTML(item.sched, item.pred);
+            const schedTime = item.sched ? formatHM(item.sched) : "";
+            
+            return '<tr data-ts="' + item.ts + '">' +
+              '<td class="td-line"><div class="badge">' + item.line + '</div></td>' +
+              '<td class="td-dest">' + item.dest + '</td>' +
+              '<td class="td-time">' +
+                '<div class="countdown-wrap"><span class="val">--</span><span class="unit">min</span></div>' +
+                '<div class="real-time">' + '<span class="sched-time">' + schedTime + '</span>' + delayHtml + '</div>' +
+              '</td>' +
+            '</tr>';
+          }).join('');
+        }
+        panel.errEl.style.display = 'none';
+        updateTimersInDom(panel.tbody);
+      } catch (e) {
+        console.error(panel.id, e);
+        panel.errEl.style.display = 'inline-block';
+      }
     }
 
     function loadWeather() {
-        ajaxGet(WEATHER_API, null, function(err, data) {
-            if (err) return;
+        fetch(WEATHER_API)
+        .then(res => res.json())
+        .then(data => {
             if (data.current_weather) {
                 var t = Math.round(data.current_weather.temperature);
                 document.getElementById('weather-temp').innerText = t + "°";
@@ -521,7 +378,8 @@
                 document.getElementById('weather-desc').innerText = desc;
                 document.getElementById('weather-box').style.opacity = 1;
             }
-        });
+        })
+        .catch(err => console.error(err));
     }
 
     function updateTimersInDom(tbody) {
@@ -584,11 +442,9 @@
       updateProgressBar();
     }
 
-    function dataLoop() {
+    async function dataLoop() { 
         lastFetchTime = Date.now();
-        for (var i = 0; i < PANELS.length; i++) {
-            loadPanelData(PANELS[i]);
-        }
+        await Promise.all(PANELS.map(fetchAndRender)); 
     }
 
     // INIT
@@ -597,7 +453,7 @@
     loadWeather();
 
     setInterval(tick, 1000);
-    setInterval(dataLoop, 15000);
+    setInterval(dataLoop, REFRESH_INTERVAL); 
     setInterval(loadWeather, 900000);
 
   </script>
