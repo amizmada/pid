@@ -4,8 +4,12 @@
   <meta charset="UTF-8" />
   <title>PID Dashboard</title>
   
-  <!-- META TAGY PRO FULLSCREEN (KIOSK) -->
+  <!-- META TAGY PRO FULLSCREEN A WEB APP -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  
+  <!-- Odkaz na manifest (TOTO SCHOVÁ LIŠTU V CHROME) -->
+  <link rel="manifest" href="manifest.json">
+  
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#000000">
@@ -288,8 +292,8 @@
       if (delayMin === 0) return "";
       
       const sign = delayMin > 0 ? "+" : "";
-      /* VŽDY VRÁTÍME TŘÍDU .delay-pill (žlutou) */
-      return '<span class="delay-pill">' + sign + delayMin + ' min</span>';
+      const cls = delayMin > 0 ? "delay-late" : "delay-early";
+      return `<span class="delay-pill ${cls}">${sign}${delayMin} min</span>`;
     }
 
     async function fetchAndRender(panel) {
