@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>PID Dashboard: App Mode Fix</title>
+  <title>PID Dashboard</title>
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <meta name="mobile-web-app-capable" content="yes">
@@ -13,35 +13,81 @@
   <link rel="manifest" href="manifest.json">
   <meta http-equiv="refresh" content="10800">
 
-  <style>
-    /* === STYLY (Stejné jako předtím) === */
-    body { background-color: #050505; color: #FFFFFF; font-family: sans-serif; margin: 0; padding: 16px; height: 100vh; overflow: hidden; box-sizing: border-box; }
-    
-    header { display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; -webkit-align-items: flex-end; align-items: flex-end; border-bottom: 1px solid #262626; padding-bottom: 20px; margin-bottom: 20px; position: relative; }
-    
-    .header-left { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
-    .header-left h1 { margin: 0; font-size: 1rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-    
-    .date-row { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
-    .date-large { font-size: 1.8rem; font-weight: bold; margin-top: 5px; color: #eee; white-space: nowrap; }
-    
-    .weather-wrap { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; margin-left: 20px; padding-left: 20px; border-left: 1px solid #333; height: 30px; opacity: 1; }
-    .weather-icon { width: 32px; height: 32px; margin-right: 8px; font-size: 24px; line-height: 32px; }
-    .weather-icon svg { width: 100%; height: 100%; }
-    .weather-text { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
-    .weather-temp { font-size: 1.2rem; font-weight: bold; color: #fff; line-height: 1; }
-    .weather-desc { color: #888; font-size: 0.8rem; text-transform: lowercase; line-height: 1; margin-top: 2px; }
-    
-    .clock { font-size: 2.5rem; font-weight: bold; color: #fff; }
+  <!-- Načtení fontu Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-    .refresh-bar {
-      position: absolute; bottom: -1px; left: 0; height: 2px;
-      background: #FFFFFF; width: 0%;
-      transition: width 1s linear; opacity: 0.8;
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.4); 
+  <style>
+    /* === ZÁKLADNÍ STYLY === */
+    /* ZMĚNA: Nastaven font Inter pro celé tělo stránky */
+    body { 
+        background-color: #050505; 
+        color: #FFFFFF; 
+        font-family: 'Inter', sans-serif; 
+        margin: 0; 
+        padding: 20px; 
+        height: 100vh; 
+        overflow: hidden; 
+        box-sizing: border-box; 
+    }
+    
+    :root {
+      --bg-color: #050505;
+      --panel-bg: #111111;
+      --border-color: #262626;
+      --accent-bus: #3B82F6; 
+      --accent-metro: #E11D2D; 
+      --text-main: #FFFFFF;
+      --text-sec: #888888;
+      --status-warn: #FFCC00; 
+      --status-alert: #EF4444;
     }
 
-    .grid { display: -webkit-flex; display: flex; width: 100%; height: calc(100% - 120px); }
+    /* HEADER - Zarovnání na střed vertikálně */
+    header { 
+        display: -webkit-flex; display: flex; 
+        -webkit-justify-content: space-between; justify-content: space-between; 
+        -webkit-align-items: center; align-items: center; /* Zarovnání na střed kvůli velkému počasí */
+        border-bottom: 1px solid #262626; 
+        padding-bottom: 20px; margin-bottom: 20px; 
+        position: relative; 
+    }
+    
+    .header-left { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
+    .header-left h1 { margin: 0; font-size: 1rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+    
+    .date-row { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
+    .date-large { font-size: 1.8rem; font-weight: bold; color: #eee; white-space: nowrap; margin-right: 25px; }
+    
+    /* === VELKÉ POČASÍ === */
+    .weather-wrap { 
+        display: -webkit-flex; display: flex; 
+        -webkit-align-items: center; align-items: center; 
+        padding-left: 25px; border-left: 1px solid #333; 
+        height: auto; opacity: 1; 
+    }
+    
+    .weather-icon { 
+        width: 60px; height: 60px; /* Zvětšená ikona */
+        margin-right: 15px; 
+    }
+    .weather-icon svg { width: 100%; height: 100%; }
+    
+    .weather-text { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
+    
+    .weather-temp { 
+        font-size: 2.5rem; /* Zvětšená teplota */
+        font-weight: bold; color: #fff; line-height: 1; 
+    }
+    .weather-desc { 
+        color: #888; font-size: 1rem; /* Větší popis */
+        text-transform: lowercase; line-height: 1.2; margin-top: 4px; 
+    }
+    
+    .clock { font-size: 3rem; font-weight: bold; color: #fff; } /* Hodiny také trochu větší */
+
+    .grid { display: -webkit-flex; display: flex; width: 100%; height: calc(100% - 140px); }
     .panel { -webkit-flex: 1; flex: 1; background: #111; border: 1px solid #222; border-radius: 12px; margin: 0 10px; display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; overflow: hidden; }
     
     .panel-head { padding: 15px; border-bottom: 1px solid #222; background: #1a1a1a; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
@@ -53,20 +99,20 @@
     
     .list-container { -webkit-flex: 1; flex: 1; overflow-y: hidden; padding: 5px 0; }
     table { width: 100%; border-collapse: collapse; }
-    tr { height: 60px; border-bottom: 1px solid #222; }
-    td { padding: 0 10px; vertical-align: middle; }
+    tr { height: 64px; border-bottom: 1px solid #222; }
+    td { padding: 0 15px; vertical-align: middle; }
     
-    .badge { background: #222; color: #fff; padding: 0; border-radius: 4px; font-weight: bold; font-size: 1.1rem; display: inline-block; width: 48px; height: 32px; line-height: 32px; text-align: center; }
+    .badge { background: #222; color: #fff; padding: 0; border-radius: 4px; font-weight: bold; font-size: 1.2rem; display: inline-block; width: 52px; height: 34px; line-height: 34px; text-align: center; }
     .bus .badge { background: #3B82F6; }
     .metro .badge { background: #E11D2D; }
     
-    .td-dest { font-size: 1.1rem; font-weight: bold; color: #ddd; }
-    .td-time { text-align: right; width: 100px; }
+    .td-dest { font-size: 1.2rem; font-weight: bold; color: #ddd; }
+    .td-time { text-align: right; width: 110px; }
     
     .countdown-wrap { display: -webkit-flex; display: flex; -webkit-justify-content: flex-end; justify-content: flex-end; -webkit-align-items: baseline; align-items: baseline; }
-    .val { font-size: 1.4rem; font-weight: bold; }
-    .unit { font-size: 0.8rem; color: #888; margin-left: 3px; }
-    .real-time { font-size: 0.8rem; color: #666; margin-top: 2px; }
+    .val { font-size: 1.6rem; font-weight: bold; }
+    .unit { font-size: 0.9rem; color: #888; margin-left: 3px; }
+    .real-time { font-size: 0.9rem; color: #666; margin-top: 2px; }
     
     .sched-time { font-weight: bold; color: #ccc; font-size: 1rem; }
 
@@ -88,22 +134,22 @@
         header { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: flex-start; align-items: flex-start; }
         .clock { position: absolute; top: 0; right: 0; font-size: 1.8rem; margin-top: 0; }
         .date-row { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: flex-start; align-items: flex-start; }
-        .weather-wrap { margin-left: 0; padding-left: 0; border-left: none; margin-top: 10px; height: auto; }
+        .weather-wrap { margin-left: 0; padding-left: 0; border-left: none; margin-top: 15px; height: auto; }
         .grid { -webkit-flex-direction: column; flex-direction: column; height: auto; display: block; }
         .panel { margin: 0 0 20px 0; height: 380px; }
     }
 
     @media (max-width: 900px) and (orientation: landscape) {
         body { overflow: hidden; padding: 12px; height: 100vh; }
-        header { -webkit-flex-direction: row; flex-direction: row; -webkit-align-items: flex-end; align-items: flex-end; padding-bottom: 15px; margin-bottom: 15px; }
+        header { -webkit-flex-direction: row; flex-direction: row; -webkit-align-items: center; align-items: center; padding-bottom: 15px; margin-bottom: 15px; }
         .clock { position: relative; top: auto; right: auto; margin: 0; font-size: 2.2rem; }
         .date-row { -webkit-flex-direction: row; flex-direction: row; -webkit-align-items: center; align-items: center; }
-        .weather-wrap { margin-left: 15px; padding-left: 15px; border-left: 1px solid #333; margin-top: 0; height: 30px; }
-        .grid { display: -webkit-flex; display: flex; -webkit-flex-direction: row; flex-direction: row; height: calc(100% - 100px); }
+        .weather-wrap { margin-left: 20px; padding-left: 20px; border-left: 1px solid #333; margin-top: 0; height: auto; }
+        .grid { display: -webkit-flex; display: flex; -webkit-flex-direction: row; flex-direction: row; height: calc(100% - 120px); }
         .panel { -webkit-flex: 1; flex: 1; margin: 0 8px; height: 100%; }
         .badge { width: 42px; font-size: 1rem; }
         .td-dest { font-size: 1rem; }
-        .val { font-size: 1.3rem; }
+        .val { font-size: 1.4rem; }
     }
   </style>
 </head>
@@ -116,6 +162,7 @@
       <h1 id="day-display">Načítám...</h1>
       <div class="date-row">
         <div id="date-display" class="date-large">...</div>
+        <!-- Zvětšené počasí -->
         <div class="weather-wrap" id="weather-box">
           <div id="weather-icon" class="weather-icon"></div>
           <div class="weather-text">
@@ -134,11 +181,9 @@
       <div class="panel-head">
         <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg></div>
         <span class="panel-title">Litochlebské nám.</span>
-        <!-- ID místo elementu -->
         <span id="err-bus" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">NAČÍTÁM...</span>
       </div>
       <div class="list-container">
-        <!-- ID místo elementu -->
         <table><tbody id="tbody-bus"></tbody></table>
       </div>
     </div>
@@ -148,18 +193,17 @@
       <div class="panel-head">
         <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M12 2c-4.42 0-8 .5-8 4v10c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg></div>
         <span class="panel-title">Metro C – Opatov</span>
-        <!-- ID místo elementu -->
         <span id="err-metro" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">NAČÍTÁM...</span>
       </div>
       <div class="list-container">
-        <!-- ID místo elementu -->
         <table><tbody id="tbody-metro"></tbody></table>
       </div>
     </div>
   </div>
 
   <script>
-    // --- JS LOGIKA (ES5 Kompatibilní) ---
+    // --- JS LOGIKA (ES5 pro starý Chrome) ---
+    // Zachována z předchozí funkční verze
 
     window.onerror = function(msg, url, line) {
        var el = document.getElementById('error-console');
@@ -170,7 +214,6 @@
        return false;
     };
 
-    // Používáme 'var' místo 'const'
     var API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDE1NCwiaWF0IjoxNzYzMDQ0OTYyLCJleHAiOjExNzYzMDQ0OTYyLCJpc3MiOiJnb2xlbWlvIiwianRpIjoiYWI3ZTJlMjYtYmVjZS00MGNhLTlkYTItZGY1MzEzMjNmOTRhIn0.5P9OjGHaDP4wJ4f6w05fQZR1UARUgxk2gBuwDjpVrWU";
     var API_BASE = "https://api.golemio.cz/v2/pid/departureboards";
     var WEATHER_API = "https://api.open-meteo.com/v1/forecast?latitude=50.03&longitude=14.51&current_weather=true";
@@ -178,7 +221,6 @@
     
     var lastFetchTime = 0;
 
-    // Používáme ID řetězce (strings), ne objekty
     var PANELS = [
       {
         id: 'bus',
@@ -256,7 +298,6 @@
     }
 
     function loadPanelData(panel) {
-        // TADY SE MĚNÍ LOGIKA: Hledáme elementy až uvnitř funkce
         var tbody = document.getElementById(panel.tbodyId);
         var errEl = document.getElementById(panel.errElId);
 
@@ -321,7 +362,7 @@
             }
             if(tbody) {
                 tbody.innerHTML = html;
-                updateTimersInDom(tbody); // Předáváme nalezený element
+                updateTimersInDom(tbody); 
             }
             if(errEl) errEl.style.display = 'none';
         });
@@ -363,7 +404,7 @@
     }
 
     function updateTimersInDom(tbody) {
-        if(!tbody) return; // FIX: Pokud tbody neexistuje, skonči
+        if(!tbody) return; 
         
         var now = new Date().getTime();
         var rows = tbody.querySelectorAll('tr[data-ts]');
@@ -400,16 +441,6 @@
         }
     }
 
-    function updateProgressBar() {
-        var bar = document.getElementById('refresh-bar');
-        if(!bar) return; // FIX: Pokud bar neexistuje, skonči
-        
-        var now = Date.now();
-        var elapsed = now - lastFetchTime;
-        var progress = Math.min((elapsed / REFRESH_INTERVAL) * 100, 100);
-        bar.style.width = progress + '%';
-    }
-
     function tick() {
       var now = new Date();
       var elClock = document.getElementById('clock');
@@ -434,8 +465,6 @@
       
       var tbodyMetro = document.getElementById('tbody-metro');
       if(tbodyMetro) updateTimersInDom(tbodyMetro);
-      
-      updateProgressBar();
     }
 
     function dataLoop() {
@@ -445,7 +474,7 @@
         }
     }
 
-    // INIT using DOMContentLoaded (Bezpečnější start)
+    // INIT using DOMContentLoaded
     document.addEventListener("DOMContentLoaded", function() {
         tick();
         dataLoop();
