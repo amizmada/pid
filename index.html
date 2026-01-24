@@ -10,28 +10,14 @@
   <meta name="theme-color" content="#000000">
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="manifest" href="manifest.json">
   <meta http-equiv="refresh" content="10800">
 
-  <!-- Načtení fontu Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
     /* === ZÁKLADNÍ STYLY === */
-    /* ZMĚNA: Nastaven font Inter pro celé tělo stránky */
-    body { 
-        background-color: #050505; 
-        color: #FFFFFF; 
-        font-family: 'Inter', sans-serif; 
-        margin: 0; 
-        padding: 20px; 
-        height: 100vh; 
-        overflow: hidden; 
-        box-sizing: border-box; 
-    }
-    
     :root {
       --bg-color: #050505;
       --panel-bg: #111111;
@@ -44,112 +30,211 @@
       --status-alert: #EF4444;
     }
 
-    /* HEADER - Zarovnání na střed vertikálně */
+    body { 
+        background-color: var(--bg-color); 
+        color: var(--text-main); 
+        font-family: 'Inter', sans-serif; 
+        margin: 0; 
+        padding: 15px; 
+        /* Fixní výška pro chování jako aplikace */
+        height: 100vh; 
+        height: 100dvh; /* Pro moderní mobilní prohlížeče */
+        overflow: hidden; 
+        box-sizing: border-box; 
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* HEADER - Kompaktnější verze */
     header { 
-        display: -webkit-flex; display: flex; 
-        -webkit-justify-content: space-between; justify-content: space-between; 
-        -webkit-align-items: center; align-items: center; /* Zarovnání na střed kvůli velkému počasí */
-        border-bottom: 1px solid #262626; 
-        padding-bottom: 20px; margin-bottom: 20px; 
-        position: relative; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        border-bottom: 1px solid var(--border-color); 
+        padding-bottom: 10px; 
+        margin-bottom: 10px; 
+        flex: 0 0 auto; /* Header se nenatahuje */
     }
     
-    .header-left { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
-    .header-left h1 { margin: 0; font-size: 1rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+    .header-left { 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center;
+    }
     
-    .date-row { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
-    .date-large { font-size: 1.8rem; font-weight: bold; color: #eee; white-space: nowrap; margin-right: 25px; }
+    .header-main-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-left h1 { 
+        margin: 0; font-size: 0.85rem; color: var(--text-sec); 
+        text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; 
+    }
     
-    /* === VELKÉ POČASÍ === */
+    .date-large { 
+        font-size: 1.5rem; font-weight: bold; color: #eee; white-space: nowrap; 
+    }
+    
+    /* === POČASÍ === */
     .weather-wrap { 
-        display: -webkit-flex; display: flex; 
-        -webkit-align-items: center; align-items: center; 
-        padding-left: 25px; border-left: 1px solid #333; 
-        height: auto; opacity: 1; 
+        display: flex; 
+        align-items: center; 
+        padding-left: 20px; 
+        border-left: 1px solid #333; 
+        margin-left: 20px;
+        opacity: 1; 
     }
     
-    .weather-icon { 
-        width: 60px; height: 60px; /* Zvětšená ikona */
-        margin-right: 15px; 
-    }
+    .weather-icon { width: 42px; height: 42px; margin-right: 10px; }
     .weather-icon svg { width: 100%; height: 100%; }
     
-    .weather-text { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
+    .weather-text { display: flex; flex-direction: column; justify-content: center; }
     
     .weather-temp { 
-        font-size: 2.5rem; /* Zvětšená teplota */
-        font-weight: bold; color: #fff; line-height: 1; 
+        font-size: 1.8rem; font-weight: bold; color: #fff; line-height: 1; 
     }
     .weather-desc { 
-        color: #888; font-size: 1rem; /* Větší popis */
-        text-transform: lowercase; line-height: 1.2; margin-top: 4px; 
+        color: #888; font-size: 0.8rem; text-transform: lowercase; margin-top: 2px; 
     }
     
-    .clock { font-size: 3rem; font-weight: bold; color: #fff; } /* Hodiny také trochu větší */
+    .clock { 
+        font-size: 2.5rem; font-weight: bold; color: #fff; 
+        font-variant-numeric: tabular-nums; /* Aby čísla neposkakovala */
+    }
 
-    .grid { display: -webkit-flex; display: flex; width: 100%; height: calc(100% - 140px); }
-    .panel { -webkit-flex: 1; flex: 1; background: #111; border: 1px solid #222; border-radius: 12px; margin: 0 10px; display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; overflow: hidden; }
+    /* === GRID & PANELY === */
+    .grid { 
+        display: flex; 
+        flex: 1; /* Zabere zbytek výšky stránky */
+        gap: 15px;
+        overflow: hidden; /* Důležité pro scrollování uvnitř */
+        height: 100%;
+    }
+
+    .panel { 
+        flex: 1; 
+        background: var(--panel-bg); 
+        border: 1px solid #222; 
+        border-radius: 12px; 
+        display: flex; 
+        flex-direction: column; 
+        overflow: hidden; 
+        min-height: 0; /* Klíčové pro Flexbox scrolling */
+    }
     
-    .panel-head { padding: 15px; border-bottom: 1px solid #222; background: #1a1a1a; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
-    .icon-box { width: 24px; height: 24px; margin-right: 10px; }
+    .panel-head { 
+        padding: 12px 15px; 
+        border-bottom: 1px solid #222; 
+        background: #1a1a1a; 
+        display: flex; align-items: center; 
+        flex: 0 0 auto; /* Hlavička panelu se nescrolluje */
+    }
+
+    .icon-box { width: 22px; height: 22px; margin-right: 10px; }
     .icon-box svg { width: 100%; height: 100%; fill: currentColor; }
-    .bus .icon-box { color: #3B82F6; }
-    .metro .icon-box { color: #E11D2D; }
-    .panel-title { font-weight: bold; font-size: 1rem; text-transform: uppercase; color: #fff; }
+    .bus .icon-box { color: var(--accent-bus); }
+    .metro .icon-box { color: var(--accent-metro); }
+    .panel-title { font-weight: bold; font-size: 0.95rem; text-transform: uppercase; color: #fff; }
     
-    .list-container { -webkit-flex: 1; flex: 1; overflow-y: hidden; padding: 5px 0; }
-    table { width: 100%; border-collapse: collapse; }
-    tr { height: 64px; border-bottom: 1px solid #222; }
-    td { padding: 0 15px; vertical-align: middle; }
-    
-    .badge { background: #222; color: #fff; padding: 0; border-radius: 4px; font-weight: bold; font-size: 1.2rem; display: inline-block; width: 52px; height: 34px; line-height: 34px; text-align: center; }
-    .bus .badge { background: #3B82F6; }
-    .metro .badge { background: #E11D2D; }
-    
-    .td-dest { font-size: 1.2rem; font-weight: bold; color: #ddd; }
-    .td-time { text-align: right; width: 110px; }
-    
-    .countdown-wrap { display: -webkit-flex; display: flex; -webkit-justify-content: flex-end; justify-content: flex-end; -webkit-align-items: baseline; align-items: baseline; }
-    .val { font-size: 1.6rem; font-weight: bold; }
-    .unit { font-size: 0.9rem; color: #888; margin-left: 3px; }
-    .real-time { font-size: 0.9rem; color: #666; margin-top: 2px; }
-    
-    .sched-time { font-weight: bold; color: #ccc; font-size: 1rem; }
+    /* SCROLLOVACÍ ČÁST */
+    .list-container { 
+        flex: 1; 
+        overflow-y: auto; /* Zde povolíme scroll */
+        -webkit-overflow-scrolling: touch; /* Plynulý scroll na iOS */
+        padding: 0; 
+    }
 
-    .status-now .val { color: #E11D2D; }
-    .status-soon .val { color: #FFCC00; }
+    table { width: 100%; border-collapse: collapse; }
+    tr { height: 60px; border-bottom: 1px solid #222; }
+    td { padding: 0 12px; vertical-align: middle; }
+    tr:last-child { border-bottom: none; }
+    
+    .badge { 
+        background: #222; color: #fff; padding: 0; border-radius: 6px; 
+        font-weight: bold; font-size: 1.1rem; display: inline-block; 
+        width: 48px; height: 32px; line-height: 32px; text-align: center; 
+    }
+    .bus .badge { background: var(--accent-bus); }
+    .metro .badge { background: var(--accent-metro); }
+    
+    .td-dest { font-size: 1.1rem; font-weight: bold; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+    .td-time { text-align: right; width: 90px; white-space: nowrap; }
+    
+    .countdown-wrap { display: flex; justify-content: flex-end; align-items: baseline; }
+    .val { font-size: 1.5rem; font-weight: bold; }
+    .unit { font-size: 0.8rem; color: #888; margin-left: 2px; }
+    .real-time { font-size: 0.85rem; color: #666; margin-top: 1px; }
+    
+    .sched-time { font-weight: bold; color: #ccc; }
+
+    .status-now .val { color: var(--accent-metro); }
+    .status-soon .val { color: var(--status-warn); }
     
     .delay-pill { 
-        font-size: 0.75rem; font-weight: 800; color: #000; background-color: #FFCC00;
-        margin-left: 6px; padding: 2px 5px; border-radius: 4px; display: inline-block; vertical-align: middle;
+        font-size: 0.7rem; font-weight: 800; color: #000; background-color: var(--status-warn);
+        margin-left: 4px; padding: 1px 4px; border-radius: 3px; display: inline-block; vertical-align: middle;
     }
 
     #error-console { 
         position: absolute; top: 0; left: 0; width: 100%; background: #900; color: white; 
-        font-size: 14px; padding: 15px; display: none; z-index: 9999; font-family: monospace; white-space: pre-wrap;
+        font-size: 12px; padding: 10px; display: none; z-index: 9999; font-family: monospace; 
     }
 
+    /* === MOBILNÍ ÚPRAVY === */
     @media (max-width: 900px) {
-        body { padding: 10px; overflow-y: auto; height: auto; }
-        header { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: flex-start; align-items: flex-start; }
-        .clock { position: absolute; top: 0; right: 0; font-size: 1.8rem; margin-top: 0; }
-        .date-row { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: flex-start; align-items: flex-start; }
-        .weather-wrap { margin-left: 0; padding-left: 0; border-left: none; margin-top: 15px; height: auto; }
-        .grid { -webkit-flex-direction: column; flex-direction: column; height: auto; display: block; }
-        .panel { margin: 0 0 20px 0; height: 380px; }
-    }
+        body { padding: 10px; } /* Menší okraj kolem aplikace */
 
-    @media (max-width: 900px) and (orientation: landscape) {
-        body { overflow: hidden; padding: 12px; height: 100vh; }
-        header { -webkit-flex-direction: row; flex-direction: row; -webkit-align-items: center; align-items: center; padding-bottom: 15px; margin-bottom: 15px; }
-        .clock { position: relative; top: auto; right: auto; margin: 0; font-size: 2.2rem; }
-        .date-row { -webkit-flex-direction: row; flex-direction: row; -webkit-align-items: center; align-items: center; }
-        .weather-wrap { margin-left: 20px; padding-left: 20px; border-left: 1px solid #333; margin-top: 0; height: auto; }
-        .grid { display: -webkit-flex; display: flex; -webkit-flex-direction: row; flex-direction: row; height: calc(100% - 120px); }
-        .panel { -webkit-flex: 1; flex: 1; margin: 0 8px; height: 100%; }
-        .badge { width: 42px; font-size: 1rem; }
-        .td-dest { font-size: 1rem; }
-        .val { font-size: 1.4rem; }
+        header {
+            flex-wrap: wrap; /* Umožní zalomení, kdyby bylo potřeba, ale snažíme se držet v řádku */
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Uspořádání hlavičky na mobilu: Datum vlevo, Hodiny vpravo, Počasí pod nimi nebo vpravo */
+        .header-left h1 { font-size: 0.75rem; }
+        .date-large { font-size: 1.2rem; }
+        
+        .clock { 
+            font-size: 1.8rem; /* Menší hodiny */
+            margin-left: auto; /* Hodiny zarovnat doprava */
+        }
+
+        .weather-wrap {
+            margin-left: 15px;
+            padding-left: 15px;
+            border-left: 1px solid #333;
+        }
+        .weather-icon { width: 32px; height: 32px; margin-right: 8px; }
+        .weather-temp { font-size: 1.4rem; }
+        .weather-desc { display: none; } /* Na mobilu skryjeme textový popis pro úsporu místa */
+
+        .grid { 
+            flex-direction: column; /* Panely pod sebe */
+            gap: 10px;
+        }
+
+        .panel {
+            /* Na mobilu rozdělíme obrazovku na poloviny, nebo necháme flex pracovat */
+            flex: 1; 
+            width: 100%;
+        }
+
+        /* Pokud je displej hodně malý na výšku (landscape na mobilu) */
+        @media (orientation: landscape) {
+            .grid { flex-direction: row; }
+            .header-left { flex-direction: row; align-items: baseline; gap: 10px; }
+            .weather-desc { display: block; }
+        }
+    }
+    
+    /* Velmi malé telefony */
+    @media (max-width: 380px) {
+        .date-large { font-size: 1rem; }
+        .clock { font-size: 1.5rem; }
+        .weather-wrap { margin-left: 10px; padding-left: 10px; }
+        .weather-temp { font-size: 1.2rem; }
     }
   </style>
 </head>
@@ -160,40 +245,38 @@
   <header>
     <div class="header-left">
       <h1 id="day-display">Načítám...</h1>
-      <div class="date-row">
-        <div id="date-display" class="date-large">...</div>
-        <!-- Zvětšené počasí -->
-        <div class="weather-wrap" id="weather-box">
-          <div id="weather-icon" class="weather-icon"></div>
-          <div class="weather-text">
-             <span id="weather-temp" class="weather-temp">--°</span>
-             <span id="weather-desc" class="weather-desc"></span>
+      <div class="header-main-info">
+          <div id="date-display" class="date-large">...</div>
+          
+          <div class="weather-wrap" id="weather-box">
+            <div id="weather-icon" class="weather-icon"></div>
+            <div class="weather-text">
+                <span id="weather-temp" class="weather-temp">--°</span>
+                <span id="weather-desc" class="weather-desc"></span>
+            </div>
           </div>
-        </div>
       </div>
     </div>
     <div id="clock" class="clock">--:--</div>
   </header>
 
   <div class="grid">
-    <!-- PANEL BUS -->
     <div class="panel bus">
       <div class="panel-head">
         <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg></div>
         <span class="panel-title">Litochlebské nám.</span>
-        <span id="err-bus" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">NAČÍTÁM...</span>
+        <span id="err-bus" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">CHYBA</span>
       </div>
       <div class="list-container">
         <table><tbody id="tbody-bus"></tbody></table>
       </div>
     </div>
 
-    <!-- PANEL METRO -->
     <div class="panel metro">
       <div class="panel-head">
         <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M12 2c-4.42 0-8 .5-8 4v10c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg></div>
         <span class="panel-title">Metro C – Opatov</span>
-        <span id="err-metro" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">NAČÍTÁM...</span>
+        <span id="err-metro" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">CHYBA</span>
       </div>
       <div class="list-container">
         <table><tbody id="tbody-metro"></tbody></table>
@@ -202,14 +285,12 @@
   </div>
 
   <script>
-    // --- JS LOGIKA (ES5 pro starý Chrome) ---
-    // Zachována z předchozí funkční verze
-
+    // --- JS LOGIKA ---
     window.onerror = function(msg, url, line) {
        var el = document.getElementById('error-console');
        if(el) {
            el.style.display = 'block';
-           el.innerText = "JS Error: " + msg + " (Line " + line + ")";
+           el.innerText = "JS Error: " + msg;
        }
        return false;
     };
@@ -219,8 +300,6 @@
     var WEATHER_API = "https://api.open-meteo.com/v1/forecast?latitude=50.03&longitude=14.51&current_weather=true";
     var REFRESH_INTERVAL = 15000;
     
-    var lastFetchTime = 0;
-
     var PANELS = [
       {
         id: 'bus',
@@ -269,14 +348,14 @@
                         var json = JSON.parse(xhr.responseText);
                         callback(null, json);
                     } catch (e) {
-                        callback("JSON Chyba", null);
+                        callback("JSON Err", null);
                     }
                 } else {
                     callback("HTTP " + xhr.status, null);
                 }
             }
         };
-        xhr.onerror = function() { callback("Síťová Chyba", null); };
+        xhr.onerror = function() { callback("Net Err", null); };
         xhr.send();
     }
 
@@ -286,27 +365,13 @@
         return h + ":" + m;
     }
 
-    function getDelayHTML(scheduled, predicted) {
-      if (!scheduled || !predicted) return "";
-      var diffMs = predicted - scheduled;
-      var delayMin = Math.round(diffMs / 60000);
-      if (delayMin === 0) return "";
-      
-      var sign = delayMin > 0 ? "+" : "";
-      var cls = delayMin > 0 ? "delay-late" : "delay-early";
-      return '<span class="delay-pill">' + sign + delayMin + ' min</span>';
-    }
-
     function loadPanelData(panel) {
         var tbody = document.getElementById(panel.tbodyId);
         var errEl = document.getElementById(panel.errElId);
 
         ajaxGet(panel.url, API_TOKEN, function(err, data) {
             if (err) {
-                if(errEl) {
-                    errEl.style.display = 'inline';
-                    errEl.innerText = err;
-                }
+                if(errEl) { errEl.style.display = 'inline'; errEl.innerText = err; }
                 return;
             }
             
@@ -330,7 +395,7 @@
                 var delayHtml = "";
                 if (sched && pred) {
                     var diff = Math.round((pred - sched) / 60000);
-                    if (diff > 0) delayHtml = '<span class="delay-pill">+' + diff + ' min</span>';
+                    if (diff > 0) delayHtml = '<span class="delay-pill">+' + diff + '</span>';
                 }
 
                 items.push({
@@ -342,7 +407,8 @@
             }
 
             items.sort(function(a, b) { return a.ts - b.ts; });
-            items = items.slice(0, 7);
+            // Zvýšeno limit pro zobrazení více řádků při scrollování
+            items = items.slice(0, 30); 
 
             var html = "";
             if (items.length === 0) {
@@ -415,12 +481,12 @@
             var valEl = row.querySelector('.val');
             var unitEl = row.querySelector('.unit');
             
-            // Reset colors
             valEl.style.color = "#ffffff";
 
             if (diffSec < -30) {
                 row.style.display = 'none';
             } else {
+                row.style.display = 'table-row'; // Fix pro zobrazení při scrollování
                 var text = "";
                 var unit = "";
                 if (diffSec <= 0) {
@@ -446,13 +512,13 @@
       var elClock = document.getElementById('clock');
       if(elClock) {
           elClock.innerText = now.toLocaleTimeString('cs-CZ', {
-              hour: '2-digit', minute:'2-digit', second: '2-digit'
+              hour: '2-digit', minute:'2-digit' // Sekundy na mobilu zbytečně berou místo
           });
       }
       
       var days = ["Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota"];
       var dayName = days[now.getDay()];
-      var dateStr = now.getDate() + ". " + (now.getMonth() + 1) + ". " + now.getFullYear();
+      var dateStr = now.getDate() + ". " + (now.getMonth() + 1) + ".";
       
       var elDay = document.getElementById('day-display');
       if(elDay) elDay.innerText = dayName;
@@ -468,13 +534,11 @@
     }
 
     function dataLoop() {
-        lastFetchTime = Date.now();
         for (var i = 0; i < PANELS.length; i++) {
             loadPanelData(PANELS[i]);
         }
     }
 
-    // INIT using DOMContentLoaded
     document.addEventListener("DOMContentLoaded", function() {
         tick();
         dataLoop();
