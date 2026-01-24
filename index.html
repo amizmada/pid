@@ -102,6 +102,7 @@
     .clock { 
         font-size: 2.5rem; font-weight: bold; color: #fff; 
         font-variant-numeric: tabular-nums; /* Aby čísla neposkakovala */
+        white-space: nowrap;
     }
 
     /* === GRID & PANELY === */
@@ -184,44 +185,41 @@
 
     /* === MOBILNÍ ÚPRAVY === */
     @media (max-width: 900px) {
-        body { padding: 10px; } /* Menší okraj kolem aplikace */
+        body { padding: 10px; }
 
         header {
-            flex-wrap: wrap; /* Umožní zalomení, kdyby bylo potřeba, ale snažíme se držet v řádku */
+            flex-wrap: wrap; 
             padding-bottom: 8px;
             margin-bottom: 8px;
         }
 
-        /* Uspořádání hlavičky na mobilu: Datum vlevo, Hodiny vpravo, Počasí pod nimi nebo vpravo */
         .header-left h1 { font-size: 0.75rem; }
-        .date-large { font-size: 1.2rem; }
+        .date-large { font-size: 1.1rem; }
         
         .clock { 
-            font-size: 1.8rem; /* Menší hodiny */
-            margin-left: auto; /* Hodiny zarovnat doprava */
+            font-size: 1.4rem; /* Zmenšeno, aby se vešly i vteřiny vedle sebe */
+            margin-left: auto;
         }
 
         .weather-wrap {
-            margin-left: 15px;
-            padding-left: 15px;
+            margin-left: 10px;
+            padding-left: 10px;
             border-left: 1px solid #333;
         }
-        .weather-icon { width: 32px; height: 32px; margin-right: 8px; }
-        .weather-temp { font-size: 1.4rem; }
-        .weather-desc { display: none; } /* Na mobilu skryjeme textový popis pro úsporu místa */
+        .weather-icon { width: 30px; height: 30px; margin-right: 6px; }
+        .weather-temp { font-size: 1.3rem; }
+        .weather-desc { display: none; } 
 
         .grid { 
-            flex-direction: column; /* Panely pod sebe */
+            flex-direction: column; 
             gap: 10px;
         }
 
         .panel {
-            /* Na mobilu rozdělíme obrazovku na poloviny, nebo necháme flex pracovat */
             flex: 1; 
             width: 100%;
         }
 
-        /* Pokud je displej hodně malý na výšku (landscape na mobilu) */
         @media (orientation: landscape) {
             .grid { flex-direction: row; }
             .header-left { flex-direction: row; align-items: baseline; gap: 10px; }
@@ -230,11 +228,11 @@
     }
     
     /* Velmi malé telefony */
-    @media (max-width: 380px) {
+    @media (max-width: 360px) {
         .date-large { font-size: 1rem; }
-        .clock { font-size: 1.5rem; }
-        .weather-wrap { margin-left: 10px; padding-left: 10px; }
-        .weather-temp { font-size: 1.2rem; }
+        .clock { font-size: 1.2rem; }
+        .weather-wrap { margin-left: 8px; padding-left: 8px; }
+        .weather-temp { font-size: 1.1rem; }
     }
   </style>
 </head>
@@ -257,7 +255,7 @@
           </div>
       </div>
     </div>
-    <div id="clock" class="clock">--:--</div>
+    <div id="clock" class="clock">--:--:--</div>
   </header>
 
   <div class="grid">
@@ -274,7 +272,7 @@
 
     <div class="panel metro">
       <div class="panel-head">
-        <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M12 2c-4.42 0-8 .5-8 4v10c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg></div>
+        <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M12 2c-4.42 0-8 .5-8 4v10c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-6H6V6h5v5zm5.5 6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6h-5V6h5v5z"/></svg></div>
         <span class="panel-title">Metro C – Opatov</span>
         <span id="err-metro" style="display:none; color:red; margin-left:auto; font-size:0.7rem; font-weight:bold;">CHYBA</span>
       </div>
@@ -407,7 +405,6 @@
             }
 
             items.sort(function(a, b) { return a.ts - b.ts; });
-            // Zvýšeno limit pro zobrazení více řádků při scrollování
             items = items.slice(0, 30); 
 
             var html = "";
@@ -486,7 +483,7 @@
             if (diffSec < -30) {
                 row.style.display = 'none';
             } else {
-                row.style.display = 'table-row'; // Fix pro zobrazení při scrollování
+                row.style.display = 'table-row'; 
                 var text = "";
                 var unit = "";
                 if (diffSec <= 0) {
@@ -511,8 +508,9 @@
       var now = new Date();
       var elClock = document.getElementById('clock');
       if(elClock) {
+          // PŘIDÁNY VTEŘINY
           elClock.innerText = now.toLocaleTimeString('cs-CZ', {
-              hour: '2-digit', minute:'2-digit' // Sekundy na mobilu zbytečně berou místo
+              hour: '2-digit', minute:'2-digit', second: '2-digit'
           });
       }
       
